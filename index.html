@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F2F4F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C141E" media="(prefers-color-scheme: dark)">
+<title>Energy Opportunity Scan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Phones: result, inputs, KPIs, curve, ranking in one column with the result pinned on top.
+     From 900px: inputs sticky in a left column, results on the right. */
+  --bg: #F2F4F7;
+  --surface: #FFFFFF;
+  --ink: #132033;
+  --muted: #586579;
+  --line: #D6DCE4;
+  --peak: #C06A1C;
+  --peak-text: #A0540F;
+  --flex: #2A52C4;
+  --flex-soft: #DCE4FA;
+  --band: #B7C6F2;
+  --shadow: rgba(19, 32, 51, 0.18);
+  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0C141E;
+    --surface: #132030;
+    --ink: #E6ECF3;
+    --muted: #97A4B5;
+    --line: #26364B;
+    --peak: #F0A24A;
+    --peak-text: #F0A24A;
+    --flex: #7F9DF8;
+    --flex-soft: #1B2A4E;
+    --band: #3D5899;
+    --shadow: rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 40px; display: grid; gap: 20px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--flex); outline-offset: 2px; border-radius: 4px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand svg { width: 34px; height: 22px; flex: none; }
+.brand .b1 { fill: none; stroke: var(--peak); stroke-width: 2; stroke-linejoin: round; }
+.brand .b2 { stroke: var(--flex); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.brand h1 { font-size: 21px; font-weight: 700; font-variation-settings: "wdth" 115; letter-spacing: -0.01em; }
+.pill { font-size: 13px; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; }
+.lede { color: var(--muted); max-width: 60ch; margin-top: -8px; }
+
+/* Grid */
+.grid { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-areas:
+      "inputs headline"
+      "inputs kpis"
+      "inputs curve"
+      "inputs rank"
+      "inputs scale"
+      "inputs next"
+      "inputs cta"
+      "inputs assump";
+    column-gap: 36px;
+    align-items: start;
+  }
+  .inputs { grid-area: inputs; position: sticky; top: 16px; }
+  .headline { grid-area: headline; }
+  .kpis { grid-area: kpis; }
+  .curve { grid-area: curve; }
+  .rank { grid-area: rank; }
+  .scale { grid-area: scale; }
+  .next { grid-area: next; }
+  .cta { grid-area: cta; }
+  .assump { grid-area: assump; }
+}
+
+/* Result, pinned on phones so the number stays in view while sliding */
+.headline { background: var(--bg); padding: 4px 0 10px; border-bottom: 1px solid var(--line); }
+@media (max-width: 899px) {
+  .headline { position: sticky; top: 0; z-index: 5; padding-top: 10px; }
+}
+.big { font-size: clamp(30px, 8vw, 46px); font-weight: 750; line-height: 1.08; font-variation-settings: "wdth" 118; letter-spacing: -0.015em; }
+.big .unit { font-weight: 500; color: var(--muted); font-size: 0.55em; letter-spacing: 0; font-variation-settings: "wdth" 100; }
+.sub { color: var(--muted); margin-top: 4px; font-size: 15px; }
+
+/* KPI strip */
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.kpi { padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.kpi + .kpi { border-left: 1px solid var(--line); }
+.kpi .v { font-size: clamp(17px, 4.6vw, 22px); font-weight: 700; font-variation-settings: "wdth" 112; line-height: 1.2; }
+.kpi .l { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.kpi.free .v { color: var(--flex); }
+@media (max-width: 420px) { .kpi { padding: 10px; } }
+
+/* Inputs */
+.inputs { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 16px; display: grid; gap: 16px; }
+.inputs h2 { font-size: 16px; font-weight: 700; }
+.inputs .hint { font-size: 13.5px; color: var(--muted); margin-top: -12px; }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.presets button {
+  border: 1px solid var(--line); background: transparent; border-radius: 8px;
+  padding: 6px 12px; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.presets button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.field { display: grid; gap: 4px; }
+.field-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.field label { font-size: 14px; font-weight: 600; }
+.field label small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.field output { font-size: 17px; font-weight: 700; font-variation-settings: "wdth" 112; white-space: nowrap; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; margin: 0; background: transparent; cursor: pointer; --p: 50%; }
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px;
+  background: linear-gradient(to right, var(--flex) 0 var(--p), var(--line) var(--p) 100%);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px; margin-top: -9px;
+  border-radius: 50%; background: var(--surface); border: 2px solid var(--flex); box-shadow: 0 1px 3px var(--shadow);
+}
+input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line); }
+input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--flex); }
+input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--surface); border: 2px solid var(--flex); box-shadow: 0 1px 3px var(--shadow); }
+input[type="range"]:focus-visible { outline-offset: 3px; }
+.bench { display: grid; gap: 3px; margin-top: -4px; }
+.bench-bar { position: relative; height: 5px; margin: 0 11px; }
+.bench-bar .band { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--band); transition: left .3s, width .3s; }
+.bench-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.bench-t { font-size: 12.5px; color: var(--muted); }
+.bench-t.off { color: var(--peak-text); font-weight: 600; }
+.use { border: 0; background: none; padding: 2px 0; font-size: 12.5px; font-weight: 600; color: var(--flex); cursor: pointer; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .bench-bar .band { transition: none; } }
+.warn { font-size: 13.5px; color: var(--peak-text); font-weight: 600; }
+
+/* Curve */
+.curve { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 14px 12px; }
+.curve figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.curve .ttl { font-weight: 700; font-size: 16px; }
+.curve .src { font-size: 13px; color: var(--muted); }
+#chart { width: 100%; height: auto; display: block; overflow: visible; }
+#chart .grid-l { stroke: var(--line); stroke-width: 1; }
+#chart .axis-t { fill: var(--muted); font-size: 11.5px; font-family: var(--font); }
+#chart .before { fill: none; stroke: var(--peak); stroke-width: 2; stroke-linejoin: round; }
+#chart .after { fill: var(--flex-soft); stroke: var(--flex); stroke-width: 1.75; stroke-linejoin: round; }
+#chart .cap { stroke: var(--flex); stroke-width: 1.5; stroke-dasharray: 5 4; }
+#chart .peak-dot { fill: var(--peak); }
+#chart .lab-peak { fill: var(--peak-text); font-size: 12.5px; font-weight: 700; font-family: var(--font); }
+#chart .lab-cap { fill: var(--flex); font-size: 12.5px; font-weight: 700; font-family: var(--font); }
+#chart .lab-peak, #chart .lab-cap { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.sw { width: 18px; height: 0; border-top: 2px solid var(--peak); display: inline-block; }
+.sw.after { height: 10px; border: 1.5px solid var(--flex); background: var(--flex-soft); border-radius: 2px; }
+.sw.cap { border-top: 2px dashed var(--flex); }
+
+/* Ranking */
+.rank h2, .next h2 { font-size: 19px; font-weight: 700; font-variation-settings: "wdth" 112; margin-bottom: 4px; }
+.rank .intro { color: var(--muted); font-size: 14px; margin-bottom: 8px; max-width: 64ch; }
+#measures { list-style: none; margin: 0; padding: 0; display: grid; }
+.m { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 8px; padding: 14px 0; border-top: 1px solid var(--line); align-items: start; }
+.m:last-child { border-bottom: 1px solid var(--line); }
+.m-rank { grid-row: 1 / span 3; font-size: 22px; font-weight: 750; font-variation-settings: "wdth" 118; color: var(--muted); line-height: 1.1; }
+.m h3 { font-size: 16px; font-weight: 700; line-height: 1.3; }
+.m p { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.m-save { text-align: right; font-size: 20px; font-weight: 750; font-variation-settings: "wdth" 115; white-space: nowrap; line-height: 1.2; }
+.m-save small { display: block; font-size: 12px; font-weight: 500; color: var(--muted); font-variation-settings: "wdth" 100; }
+.m-pay { grid-column: 2 / span 2; display: grid; gap: 6px; }
+.pv { font-size: 13.5px; font-weight: 600; }
+.bar { position: relative; height: 8px; border-radius: 4px; background: var(--bg); border: 1px solid var(--line); }
+.bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--flex); }
+.bar .fill.slow { background: var(--peak); }
+.bar .hurdle { position: absolute; top: -5px; bottom: -5px; left: 50%; border-left: 1.5px dashed var(--muted); }
+.m-foot { grid-column: 2 / span 2; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12.5px; border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; color: var(--muted); }
+.chip.svc { border-color: var(--peak); color: var(--peak-text); font-weight: 600; }
+.note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+/* Group potential */
+.scale { display: grid; gap: 6px 22px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); align-items: baseline; }
+.g-big { font-size: clamp(36px, 10vw, 54px); font-weight: 750; font-variation-settings: "wdth" 122; line-height: 1; letter-spacing: -0.02em; color: var(--flex); }
+.g-l { color: var(--muted); max-width: 48ch; }
+@media (min-width: 620px) { .scale { grid-template-columns: auto minmax(0, 1fr); } }
+
+/* Next steps (a real sequence, so numbered) */
+.steps { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: s; }
+.steps li { border-top: 3px solid var(--line); padding-top: 8px; font-size: 14px; color: var(--muted); counter-increment: s; }
+.steps li:first-child { border-top-color: var(--flex); }
+.steps li b { display: block; color: var(--ink); font-size: 15px; }
+.steps li b::before { content: counter(s) "  "; color: var(--muted); font-weight: 600; white-space: pre; }
+@media (max-width: 620px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Call to action (placeholder in this demo) */
+.cta { background: var(--ink); color: var(--bg); border-radius: 12px; padding: 20px 18px; display: grid; gap: 14px; }
+.cta h2 { font-size: 20px; font-weight: 700; font-variation-settings: "wdth" 112; }
+.cta p { font-size: 14.5px; opacity: 0.85; margin-top: 4px; max-width: 56ch; }
+.cta-btn { justify-self: start; border: 0; border-radius: 8px; padding: 11px 18px; font-size: 15px; font-weight: 700; background: var(--flex); color: var(--surface); cursor: pointer; }
+.cta-btn:focus-visible { outline-color: var(--bg); }
+.cta-note { font-size: 13.5px; border-left: 2px solid var(--flex); padding-left: 10px; opacity: 1 !important; }
+@media (min-width: 620px) { .cta { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } .cta-note { grid-column: 1 / -1; } }
+
+/* Assumptions */
+.assump { font-size: 14px; color: var(--muted); }
+.assump summary { cursor: pointer; font-weight: 600; color: var(--ink); padding: 4px 0; }
+.assump ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+
+footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 34 22" aria-hidden="true"><path class="b1" d="M1 17 L7 15 L11 6 L15 9 L20 4 L24 12 L29 13 L33 16"/><path class="b2" d="M1 9 H33"/></svg>
+      <h1>Energy Opportunity Scan</h1>
+    </div>
+    <span class="pill">Concept demo</span>
+  </header>
+  <p class="lede">Five numbers about your plant give a first estimate of what energy measures are worth, what to do first and how much grid capacity they free. An on-site scan with your own data turns the range into exact numbers.</p>
+
+  <main class="grid">
+    <section class="headline" aria-live="polite">
+      <p class="big num"><span id="r-save">€290–490k</span> <span class="unit" id="r-unit">potential a year at this plant</span></p>
+      <p class="sub num" id="r-sub">8–14% of a €3.6m energy bill, estimated from typical values</p>
+    </section>
+
+    <section class="inputs" aria-labelledby="in-h">
+      <h2 id="in-h">Your plant</h2>
+      <p class="hint">Pick the closest plant type, then adjust. The blue band under each value shows what is typical for it.</p>
+      <div class="presets" role="group" aria-label="Plant type">
+        <button type="button" data-preset="brewery" aria-pressed="true">Brewery</button>
+        <button type="button" data-preset="dairy" aria-pressed="false">Dairy</button>
+        <button type="button" data-preset="meat" aria-pressed="false">Meat processing</button>
+        <button type="button" data-preset="dc" aria-pressed="false">Data center</button>
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="gwh">Electricity use</label><output id="gwh-out" for="gwh" class="num">20 GWh a year</output></div>
+        <input type="range" id="gwh" min="2" max="300" step="1" value="20">
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="peak">Peak load<small>highest quarter hour of the year</small></label><output id="peak-out" for="peak" class="num">4.5 MW</output></div>
+        <input type="range" id="peak" min="0.5" max="25" step="0.1" value="4.5">
+        <p class="warn" id="warn" hidden>This much electricity does not fit under this peak. Raise the peak load or lower the yearly use.</p>
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="flex">Flexible load<small id="flex-hint">cooling, compressed air, cleaning</small></label><output id="flex-out" for="flex" class="num">30% of load</output></div>
+        <input type="range" id="flex" min="5" max="70" step="1" value="35">
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="price">Electricity price<small>average, all in</small></label><output id="price-out" for="price" class="num">18.0 ct per kWh</output></div>
+        <input type="range" id="price" min="8" max="35" step="0.5" value="16.5">
+      </div>
+      <div class="field">
+        <div class="field-top"><label for="plants" id="plants-label">Similar plants in the group</label><output id="plants-out" for="plants" class="num">8 plants</output></div>
+        <input type="range" id="plants" min="1" max="60" step="1" value="8">
+      </div>
+    </section>
+
+    <section class="kpis" aria-label="Key results">
+      <div class="kpi"><span class="v num" id="k-pay">2.7 years</span><span class="l">payback for all four measures</span></div>
+      <div class="kpi free"><span class="v num" id="k-mw">1.2 MW</span><span class="l" id="k-mw-l">grid capacity freed for electrification</span></div>
+      <div class="kpi"><span class="v num" id="k-co2">360 t</span><span class="l">less CO₂ a year</span></div>
+    </section>
+
+    <figure class="curve">
+      <figcaption><span class="ttl">One working day, before and after</span><span class="src">Modelled 15-minute values</span></figcaption>
+      <svg id="chart" viewBox="0 0 640 270" role="img" aria-label="Load curve of one working day before and after the measures"></svg>
+      <div class="legend">
+        <span><i class="sw" aria-hidden="true"></i>Today</span>
+        <span><i class="sw after" aria-hidden="true"></i>After the measures</span>
+        <span><i class="sw cap" aria-hidden="true"></i>New peak</span>
+      </div>
+    </figure>
+
+    <section class="rank" aria-labelledby="rk-h">
+      <h2 id="rk-h">What to do first</h2>
+      <p class="intro">Quickest payback first. Each measure maps to a building block that already exists. The bar shows payback against a three-year hurdle.</p>
+      <ol id="measures"></ol>
+      <p class="note">Measures above three years work best as a service: financed, with no upfront investment for the plant.</p>
+    </section>
+
+    <section class="scale" aria-label="Group potential">
+      <p class="g-big num" id="g-save">€2.3–3.9m</p>
+      <p class="g-l" id="g-text">a year if all 8 plants in the group follow the same plan. Same scan, same offer, every plant.</p>
+    </section>
+
+    <section class="next" aria-labelledby="nx-h">
+      <h2 id="nx-h">From scan to one offer</h2>
+      <ol class="steps">
+        <li><b>Scan</b>12 months of 15-minute data, a ranked list in 10 days</li>
+        <li><b>Control</b>Load management inside the plant automation</li>
+        <li><b>Expand</b>Storage and grid connection, financed as a service</li>
+        <li><b>Scale</b>The same plan for every plant in the group</li>
+      </ol>
+    </section>
+
+    <section class="cta" aria-labelledby="cta-h">
+      <div>
+        <h2 id="cta-h">Get your exact numbers</h2>
+        <p>Talk to us about an on-site scan that measures your exact numbers. Share 12 months of 15-minute data and get a ranked list and a first offer within 10 days.</p>
+      </div>
+      <button type="button" class="cta-btn" id="cta-btn">Talk to us about a scan</button>
+      <p class="cta-note" id="cta-note" role="status" hidden></p>
+    </section>
+
+    <details class="assump">
+      <summary>How the demo calculates</summary>
+      <ul>
+        <li>Demand charge €100 per kW and year. Load management cuts the peak by 40% of the flexible share, at most 15%.</li>
+        <li>Load shifting moves 25% of the flexible energy to cheaper quarter hours at a €45 per MWh spread. It needs a dynamic power contract.</li>
+        <li>Efficiency saves 10% of the flexible load plus 2% of the rest, at €450 invested per MWh saved each year.</li>
+        <li>The battery covers 15% of the peak for two hours at €350 per kWh installed, with 300 cycles a year at a €60 per MWh spread.</li>
+        <li>Load management costs €40k per plant plus €10k per MW of peak; the shifting software €60k.</li>
+        <li>Typical ranges: price from BDEW 2026 averages by consumption size; peak from typical operating hours of the plant type; electricity use and flexible share are rough estimates from public energy guides (cooling is about 40% of brewery electricity, around 50% in meat processing).</li>
+        <li>Data centers: cooling and flexible AI workloads form the flexible share; efficiency saves 8% of it plus 1% of the rest; 15% of it shifts; load management caps at most 4% of the peak; the battery covers 20% of the peak.</li>
+        <li>CO₂ at 0.36 t per MWh of electricity saved. The curve is a modelled working day of a food plant, scaled to your values.</li>
+      </ul>
+    </details>
+  </main>
+
+  <footer>Concept demo by Laurens Dornoff for the ONE Energy Management case, built with AI. Illustrative assumptions, not an official Siemens tool.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var A = {
+    demandCharge: 100, spread: 45, shiftShare: 0.25, effFlex: 0.10, effBase: 0.02,
+    lmPerFlex: 0.4, lmCap: 0.15, lmFix: 40000, lmPerMW: 10000, shiftCapex: 60000,
+    effCapexPerMWh: 450, batShare: 0.15, batHours: 2, batCapexPerMWh: 350000,
+    batCycles: 300, batSpread: 60, batEff: 0.88, co2: 0.36, hurdle: 3, payMax: 6
+  };
+  var ARCH = {
+    brewery: { name: "breweries", v: { gwh: 20, peak: 4.5, flex: 35, price: 16.5, plants: 8 }, gwh: [5, 40], lf: [0.45, 0.6], flex: [30, 45] },
+    dairy: { name: "dairies", v: { gwh: 40, peak: 7, flex: 30, price: 16, plants: 5 }, gwh: [10, 80], lf: [0.55, 0.7], flex: [25, 40] },
+    meat: { name: "meat plants", v: { gwh: 15, peak: 3.2, flex: 50, price: 17, plants: 6 }, gwh: [5, 40], lf: [0.5, 0.65], flex: [40, 60] },
+    dc: { name: "data centers", dc: true, v: { gwh: 100, peak: 14, flex: 25, price: 15, plants: 6 }, gwh: [40, 250], lf: [0.75, 0.9], flex: [15, 35] }
+  };
+  var arch = "brewery";
+  var ids = ["gwh", "peak", "flex", "price", "plants"];
+  function el(id) { return document.getElementById(id); }
+  var reduce = false;
+  try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  function eur(v) {
+    if (v >= 9.95e6) return "€" + Math.round(v / 1e6) + "m";
+    if (v >= 999500) return "€" + (v / 1e6).toFixed(1) + "m";
+    if (v >= 1000) return "€" + Math.round(v / 1e3) + "k";
+    return "€" + Math.round(v);
+  }
+  function eurRange(v) {
+    var lo = v * 0.75, hi = v * 1.25;
+    if (hi >= 9.95e6) return "€" + Math.round(lo / 1e6) + "–" + Math.round(hi / 1e6) + "m";
+    if (hi >= 999500) return "€" + (lo / 1e6).toFixed(1) + "–" + (hi / 1e6).toFixed(1) + "m";
+    var r = hi >= 1e5 ? 1e4 : 1e3;
+    return "€" + Math.round(lo / r) * r / 1e3 + "–" + Math.round(hi / r) * r / 1e3 + "k";
+  }
+  function pctRange(v) {
+    var lo = v * 75, hi = v * 125, d = hi < 10 ? 1 : 0;
+    return lo.toFixed(d) + "–" + hi.toFixed(d) + "%";
+  }
+  function years(v) { return (v < 10 ? v.toFixed(1) : String(Math.round(v))) + " years"; }
+
+  var DC_A = { effFlex: 0.08, effBase: 0.01, shiftShare: 0.15, lmPerFlex: 0.2, lmCap: 0.04, batShare: 0.2 };
+  var TXT = {
+    fb: {
+      eff: ["Run cooling and compressed air efficiently", "Find anomalies and tune setpoints of cooling and air systems.", "SIMATIC Energy Manager with energy services"],
+      shift: ["Move flexible load to cheap hours", "Cooling and cleaning run when quarter-hour prices are low. Needs a dynamic power contract.", "Opcenter APS with load control"],
+      lm: ["Cap the peak", "Pause flexible loads for a few minutes when the plant nears its peak.", "SIMATIC Energy Suite or Electrification X"],
+      bat: ["Add a battery", "Cuts the peak further and earns on price spreads.", "Storage with Siemens Financial Services"]
+    },
+    dc: {
+      eff: ["Run cooling more efficiently", "Tune chillers and airflow, use more free-cooling hours.", "Building X with energy services"],
+      shift: ["Shift flexible AI workloads and pre-cool", "Training jobs and cooling move to cheap hours. Needs workloads that can wait.", "Flexible AI workloads (Emerald AI) with load control"],
+      lm: ["Cap the peak", "Limit facility peaks with cooling setpoints and UPS batteries.", "Electrification X"],
+      bat: ["Add a battery", "Frees grid capacity for new IT load and earns on price spreads.", "Storage (Fluence) with Siemens Financial Services"]
+    }
+  };
+  function model(i) {
+    var isDc = !!ARCH[arch].dc, P = {}, key;
+    for (key in A) P[key] = A[key];
+    if (isDc) for (key in DC_A) P[key] = DC_A[key];
+    var T = TXT[isDc ? "dc" : "fb"];
+    var mwh = i.gwh * 1000, f = i.flex / 100, pMWh = i.price * 10, bill = mwh * pMWh;
+    var lmMW = Math.min(P.lmPerFlex * f, P.lmCap) * i.peak;
+    var shiftMWh = mwh * f * P.shiftShare;
+    var effMWh = mwh * (P.effFlex * f + P.effBase);
+    /* peak can only fall to about the average load: the rest of the day still has to be served */
+    var head = Math.max(i.peak - 1.05 * (mwh / 8760) * (1 - effMWh / mwh), 0);
+    lmMW = Math.min(lmMW, head);
+    var batMW = Math.min(P.batShare * i.peak, Math.max(head - lmMW, 0)), batMWh = batMW * P.batHours;
+    var mk = function (t, save, capex) { return { title: t[0], text: t[1], block: t[2], save: save, capex: capex }; };
+    var list = [
+      mk(T.eff, effMWh * pMWh, effMWh * P.effCapexPerMWh),
+      mk(T.shift, shiftMWh * P.spread, P.shiftCapex),
+      mk(T.lm, lmMW * 1000 * P.demandCharge, P.lmFix + P.lmPerMW * i.peak),
+      mk(T.bat, batMW * 1000 * P.demandCharge + batMWh * P.batCycles * P.batSpread * P.batEff, batMWh * P.batCapexPerMWh)
+    ];
+    list.forEach(function (x) { x.pay = x.capex / Math.max(x.save, 1); });
+    list.sort(function (a, b) { return a.pay - b.pay; });
+    var save = 0, capex = 0;
+    list.forEach(function (x) { save += x.save; capex += x.capex; });
+    return {
+      bill: bill, save: save, capex: capex, pay: capex / Math.max(save, 1), share: save / Math.max(bill, 1),
+      freedMW: lmMW + batMW, measures: list, effShare: effMWh / mwh, shiftMWh: shiftMWh,
+      group: save * i.plants, co2: effMWh * P.co2
+    };
+  }
+
+  /* Modelled working day of a food and beverage plant: 96 quarter hours */
+  function smooth(h, a, b) { var t = Math.min(Math.max((h - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); }
+  function bump(h, c, w) { var d = (h - c) / w; return Math.exp(-d * d); }
+  var SHAPE = (function () {
+    var v = [], mx = 0, k;
+    for (k = 0; k < 96; k++) {
+      var h = k / 4;
+      var day = smooth(h, 5.5, 7) * (1 - smooth(h, 21.5, 23));
+      var x = 0.34 + 0.03 * Math.sin(h * 1.7)
+        + day * (0.40 + 0.04 * Math.sin(h * 2.3) + 0.03 * Math.sin(h * 5.1))
+        + 0.16 * bump(h, 6.5, 0.45) + 0.26 * bump(h, 13.75, 0.6) + 0.10 * bump(h, 19, 0.5);
+      v.push(x); if (x > mx) mx = x;
+    }
+    return v.map(function (x) { return x / mx; });
+  })();
+  /* Data center: near-flat IT load, cooling peak in the afternoon, a training block before noon */
+  var SHAPE_DC = (function () {
+    var v = [], mx = 0, k;
+    for (k = 0; k < 96; k++) {
+      var h = k / 4;
+      var x = 0.86 + 0.07 * bump(h, 15, 3.2) + 0.015 * Math.sin(h * 1.3) + 0.05 * smooth(h, 9, 9.5) * (1 - smooth(h, 12.5, 13));
+      v.push(x); if (x > mx) mx = x;
+    }
+    return v.map(function (x) { return x / mx; });
+  })();
+  function shape() { return ARCH[arch].dc ? SHAPE_DC : SHAPE; }
+  function meanPow(k) { var s = 0, S = shape(); for (var n = 0; n < 96; n++) s += Math.pow(S[n], k); return s / 96; }
+  function isDay(q) { var h = q / 4; return h >= 7 && h < 22; }
+
+  function curves(i, r) {
+    var lf = (i.gwh * 1000 / 8760) / i.peak, over = lf > 0.95, q, it;
+    lf = Math.min(lf, 0.95);
+    var lo = 0.05, hi = 8, k;
+    if (lf >= meanPow(lo)) k = lo;
+    else if (lf <= meanPow(hi)) k = hi;
+    else { for (it = 0; it < 40; it++) { k = (lo + hi) / 2; if (meanPow(k) > lf) lo = k; else hi = k; } }
+    var before = shape().map(function (s) { return i.peak * Math.pow(s, k); });
+    var x = before.map(function (v) { return v * (1 - r.effShare); });
+    var dailyShift = r.shiftMWh / 365, dSum = 0;
+    for (q = 0; q < 96; q++) if (isDay(q)) dSum += x[q] * 0.25;
+    var ratio = dSum > 0 ? Math.min(dailyShift / dSum, 0.5) : 0;
+    for (q = 0; q < 96; q++) if (isDay(q)) x[q] -= x[q] * ratio;
+    var cap = Math.max(i.peak - r.freedMW, 0.3 * i.peak), removed = 0;
+    for (q = 0; q < 96; q++) if (x[q] > cap) { removed += (x[q] - cap) * 0.25; x[q] = cap; }
+    /* Shifted load and battery charging go into the night, weighted around 02:00 */
+    var add = removed + dSum * ratio, wsum = 0, wts = [];
+    for (q = 0; q < 96; q++) {
+      var d = (q / 4 - 2 + 24) % 24; if (d > 12) d -= 24;
+      var w = Math.abs(d) < 4 ? Math.pow(Math.cos(Math.PI * d / 8), 2) : 0;
+      wts.push(w); wsum += w * 0.25;
+    }
+    if (wsum > 0) for (q = 0; q < 96; q++) if (wts[q] > 0) x[q] = Math.min(x[q] + add * wts[q] / wsum, cap);
+    return { before: before, after: x, cap: cap, over: over };
+  }
+
+  /* Chart: the viewBox follows the rendered width, so text keeps its real size on phones */
+  var svg = el("chart"), NS = "http://www.w3.org/2000/svg";
+  function node(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var a in attrs) n.setAttribute(a, attrs[a]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function niceStep(max) {
+    var steps = [0.25, 0.5, 1, 2, 2.5, 5, 10, 20];
+    for (var j = 0; j < steps.length; j++) if (max / steps[j] <= 5) return steps[j];
+    return 50;
+  }
+  function tick(t, step) { return step < 1 ? String(parseFloat(t.toFixed(2))) : String(parseFloat(t.toFixed(1))); }
+
+  function draw(c) {
+    var W = Math.round(svg.getBoundingClientRect().width) || 600;
+    var narrow = W < 520;
+    var H = Math.max(210, Math.min(Math.round(W * (narrow ? 0.66 : 0.4)), 300));
+    var X0 = narrow ? 34 : 44, X1 = W - 6, Y0 = 30, Y1 = H - 28;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var peakNow = Math.max.apply(null, c.before);
+    var yMax = peakNow * 1.12, step = niceStep(yMax), top = Math.ceil(yMax / step - 1e-9) * step;
+    var xs = function (q) { return X0 + (X1 - X0) * q / 95; };
+    var ys = function (v) { return Y1 - (Y1 - Y0) * v / top; };
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    for (var t = 0; t <= top + 1e-9; t += step) {
+      svg.appendChild(node("line", { x1: X0, x2: X1, y1: ys(t), y2: ys(t), "class": "grid-l" }));
+      svg.appendChild(node("text", { x: X0 - 8, y: ys(t) + 4, "text-anchor": "end", "class": "axis-t" }, tick(t, step)));
+    }
+    svg.appendChild(node("text", { x: X0 - 8, y: Y0 - 14, "text-anchor": "end", "class": "axis-t" }, "MW"));
+    [0, 6, 12, 18, 24].forEach(function (h) {
+      var xx = X0 + (X1 - X0) * h / 24;
+      svg.appendChild(node("text", { x: xx, y: H - 8, "text-anchor": h === 0 ? "start" : (h === 24 ? "end" : "middle"), "class": "axis-t" }, (h < 10 ? "0" : "") + h + ":00"));
+    });
+    var area = "M" + xs(0).toFixed(1) + " " + ys(0).toFixed(1);
+    c.after.forEach(function (v, q) { area += " L" + xs(q).toFixed(1) + " " + ys(v).toFixed(1); });
+    area += " L" + xs(95).toFixed(1) + " " + ys(0).toFixed(1) + " Z";
+    svg.appendChild(node("path", { d: area, "class": "after" }));
+    var line = "";
+    c.before.forEach(function (v, q) { line += (q ? " L" : "M") + xs(q).toFixed(1) + " " + ys(v).toFixed(1); });
+    svg.appendChild(node("path", { d: line, "class": "before" }));
+    svg.appendChild(node("line", { x1: X0, x2: X1, y1: ys(c.cap), y2: ys(c.cap), "class": "cap" }));
+    var qMax = 0;
+    c.before.forEach(function (v, q) { if (v > c.before[qMax]) qMax = q; });
+    var px = xs(qMax), py = ys(c.before[qMax]);
+    svg.appendChild(node("circle", { cx: px, cy: py, r: 4, "class": "peak-dot" }));
+    var anchor = px > X1 - 80 ? "end" : (px < X0 + 80 ? "start" : "middle");
+    svg.appendChild(node("text", { x: px, y: py - 10, "text-anchor": anchor, "class": "lab-peak" }, "Peak " + peakNow.toFixed(1) + " MW"));
+    svg.appendChild(node("text", { x: X0 + 4, y: ys(c.cap) - 7, "text-anchor": "start", "class": "lab-cap" }, "New peak " + c.cap.toFixed(1) + " MW"));
+    svg.setAttribute("aria-label", "Load curve of one working day. The peak falls from " + peakNow.toFixed(1) +
+      " MW to " + c.cap.toFixed(1) + " MW, and shifted load fills the night hours.");
+  }
+
+  var current = null, anim = null;
+  function mix(a, b, e) { var out = new Array(a.length); for (var j = 0; j < a.length; j++) out[j] = a[j] + (b[j] - a[j]) * e; return out; }
+  function animateTo(target) {
+    if (anim) { cancelAnimationFrame(anim); anim = null; }
+    if (reduce || !current) { current = target; draw(current); return; }
+    var from = current, t0 = null, dur = 380;
+    function frame(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+      current = { before: mix(from.before, target.before, e), after: mix(from.after, target.after, e), cap: from.cap + (target.cap - from.cap) * e };
+      draw(current);
+      anim = p < 1 ? requestAnimationFrame(frame) : null;
+    }
+    anim = requestAnimationFrame(frame);
+  }
+  window.addEventListener("resize", function () { if (current) draw(current); });
+
+  function read() {
+    var o = {};
+    ids.forEach(function (id) { o[id] = parseFloat(el(id).value); });
+    return o;
+  }
+  function paintTracks() {
+    ids.forEach(function (id) {
+      var s = el(id), p = (parseFloat(s.value) - parseFloat(s.min)) / (parseFloat(s.max) - parseFloat(s.min)) * 100;
+      s.style.setProperty("--p", p.toFixed(2) + "%");
+    });
+  }
+
+  function measureItem(m, n) {
+    var li = document.createElement("li"); li.className = "m";
+    var slow = m.pay > A.hurdle, w = Math.min(m.pay / A.payMax, 1) * 100;
+    var rank = document.createElement("span"); rank.className = "m-rank num"; rank.textContent = n + 1;
+    var main = document.createElement("div");
+    var h3 = document.createElement("h3"); h3.textContent = m.title;
+    var p = document.createElement("p"); p.textContent = m.text;
+    main.appendChild(h3); main.appendChild(p);
+    var save = document.createElement("span"); save.className = "m-save num"; save.textContent = eur(m.save);
+    var small = document.createElement("small"); small.textContent = "a year"; save.appendChild(small);
+    var pay = document.createElement("div"); pay.className = "m-pay";
+    var pv = document.createElement("span"); pv.className = "pv num";
+    pv.textContent = eur(m.capex) + " to invest, paid back in " + years(m.pay);
+    var bar = document.createElement("div"); bar.className = "bar"; bar.setAttribute("aria-hidden", "true");
+    var fill = document.createElement("span"); fill.className = "fill" + (slow ? " slow" : ""); fill.style.width = w.toFixed(1) + "%";
+    var hurdle = document.createElement("span"); hurdle.className = "hurdle";
+    bar.appendChild(fill); bar.appendChild(hurdle);
+    pay.appendChild(pv); pay.appendChild(bar);
+    var foot = document.createElement("div"); foot.className = "m-foot";
+    var chip = document.createElement("span"); chip.className = "chip"; chip.textContent = m.block; foot.appendChild(chip);
+    if (slow) { var svc = document.createElement("span"); svc.className = "chip svc"; svc.textContent = "Best as a service"; foot.appendChild(svc); }
+    li.appendChild(rank); li.appendChild(main); li.appendChild(save); li.appendChild(pay); li.appendChild(foot);
+    return li;
+  }
+
+  /* Typical ranges for the chosen plant type */
+  var BENCH_IDS = ["gwh", "peak", "flex", "price"];
+  function bands(i) {
+    var a = ARCH[arch], base = i.gwh * 1000 / 8760;
+    var pc = i.gwh < 20 ? 17.2 : (i.gwh < 70 ? 15.8 : 14.5);
+    return {
+      gwh: { lo: a.gwh[0], hi: a.gwh[1], dec: 0, unit: " GWh", what: "for " + a.name },
+      peak: { lo: base / a.lf[1], hi: base / a.lf[0], dec: 1, unit: " MW", what: "at this use" },
+      flex: { lo: a.flex[0], hi: a.flex[1], dec: 0, unit: "%", what: "for " + a.name },
+      price: { lo: pc - 1.5, hi: pc + 1.5, dec: 1, unit: " ct", what: "at this size" }
+    };
+  }
+  var bench = {};
+  BENCH_IDS.forEach(function (id) {
+    var s = el(id), wrap = document.createElement("div"); wrap.className = "bench";
+    var bar = document.createElement("div"); bar.className = "bench-bar"; bar.setAttribute("aria-hidden", "true");
+    var band = document.createElement("span"); band.className = "band"; bar.appendChild(band);
+    var row = document.createElement("div"); row.className = "bench-row";
+    var t = document.createElement("span"); t.className = "bench-t";
+    var use = document.createElement("button"); use.type = "button"; use.className = "use"; use.textContent = "Use typical";
+    row.appendChild(t); row.appendChild(use); wrap.appendChild(bar); wrap.appendChild(row);
+    s.parentNode.insertBefore(wrap, s.nextSibling);
+    bench[id] = { band: band, t: t, use: use };
+    use.addEventListener("click", function () {
+      var b = bands(read())[id], st = parseFloat(s.step), mid = (b.lo + b.hi) / 2;
+      s.value = Math.min(Math.max(Math.round(mid / st) * st, parseFloat(s.min)), parseFloat(s.max));
+      render();
+    });
+  });
+  function paintBench(i) {
+    var B = bands(i);
+    BENCH_IDS.forEach(function (id) {
+      var s = el(id), b = B[id], mn = parseFloat(s.min), mx = parseFloat(s.max);
+      var lo = Math.max(0, Math.min(1, (b.lo - mn) / (mx - mn))) * 100, hi = Math.max(0, Math.min(1, (b.hi - mn) / (mx - mn))) * 100;
+      bench[id].band.style.left = lo.toFixed(2) + "%";
+      bench[id].band.style.width = Math.max(hi - lo, 3).toFixed(2) + "%";
+      var range = b.lo.toFixed(b.dec) + "–" + b.hi.toFixed(b.dec) + b.unit, v = i[id];
+      var off = v < b.lo - 1e-9 ? "Below" : (v > b.hi + 1e-9 ? "Above" : "");
+      bench[id].t.textContent = off ? off + " typical " + b.what + " (" + range + ")" : "Typical " + b.what + ": " + range;
+      bench[id].t.className = "bench-t" + (off ? " off" : "");
+    });
+  }
+
+  function render() {
+    var i = read(), r = model(i), c = curves(i, r);
+    paintTracks();
+    paintBench(i);
+    el("gwh-out").textContent = i.gwh + " GWh a year";
+    el("peak-out").textContent = i.peak.toFixed(1) + " MW";
+    el("flex-out").textContent = i.flex + "% of load";
+    el("price-out").textContent = i.price.toFixed(1) + " ct per kWh";
+    var dc = !!ARCH[arch].dc, unit = dc ? "site" : "plant";
+    el("plants-out").textContent = i.plants + " " + unit + (i.plants === 1 ? "" : "s");
+    el("plants-label").textContent = dc ? "Similar sites in the portfolio" : "Similar plants in the group";
+    el("flex-hint").textContent = dc ? "cooling, flexible AI workloads" : "cooling, compressed air, cleaning";
+    el("r-unit").textContent = "potential a year at this " + unit;
+    el("k-mw-l").textContent = dc ? "grid capacity freed for new IT load" : "grid capacity freed for electrification";
+    el("warn").hidden = !c.over;
+    el("r-save").textContent = eurRange(r.save);
+    el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, estimated from typical values";
+    el("k-pay").textContent = years(r.pay);
+    el("k-mw").textContent = r.freedMW.toFixed(1) + " MW";
+    el("k-co2").textContent = Math.round(r.co2).toLocaleString("en-US") + " t";
+    el("g-save").textContent = eurRange(r.group);
+    el("g-text").textContent = i.plants > 1
+      ? "a year if all " + i.plants + " " + unit + "s follow the same plan. Same scan, same offer, every " + unit + "."
+      : "a year for this one " + unit + ". Add the similar " + unit + "s to see the same plan at scale.";
+    var list = el("measures");
+    while (list.firstChild) list.removeChild(list.firstChild);
+    r.measures.forEach(function (m, n) { list.appendChild(measureItem(m, n)); });
+    animateTo(c);
+  }
+
+  ids.forEach(function (id) {
+    el(id).addEventListener("input", render);
+  });
+  document.querySelectorAll(".presets button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      arch = b.getAttribute("data-preset");
+      var p = ARCH[arch].v;
+      ids.forEach(function (id) { el(id).value = p[id]; });
+      document.querySelectorAll(".presets button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      render();
+    });
+  });
+  el("cta-btn").addEventListener("click", function () {
+    var i = read(), n = el("cta-note");
+    n.textContent = "Concept demo: on the live page this opens a short form with your values already filled in (" +
+      i.gwh + " GWh, " + i.peak.toFixed(1) + " MW, " + i.flex + "% flexible, " + i.plants + (ARCH[arch].dc ? " site" : " plant") + (i.plants === 1 ? "" : "s") +
+      ") and books a call with the energy team about an on-site scan.";
+    n.hidden = false;
+  });
+  render();
+})();
+</script>
+</body>
+</html>
