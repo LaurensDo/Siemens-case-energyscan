@@ -217,14 +217,38 @@ input[type="range"]:focus-visible { outline-offset: 3px; }
 .steps li b::before { content: counter(s) "  "; color: var(--muted); font-weight: 600; white-space: pre; }
 @media (max-width: 620px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-/* Call to action (placeholder in this demo) */
-.cta { background: var(--ink); color: var(--bg); border-radius: 12px; padding: 20px 18px; display: grid; gap: 14px; }
+/* Call to action: the button opens a short form with the values above */
+.cta { background: var(--ink); color: var(--bg); border-radius: 12px; padding: 20px 18px; display: grid; gap: 14px; scroll-margin-top: 12px; }
+@media (max-width: 899px) { .cta { scroll-margin-top: 130px; } }
 .cta h2 { font-size: 20px; font-weight: 700; font-variation-settings: "wdth" 112; }
 .cta p { font-size: 14.5px; opacity: 0.85; margin-top: 4px; max-width: 56ch; }
-.cta-btn { justify-self: start; border: 0; border-radius: 8px; padding: 11px 18px; font-size: 15px; font-weight: 700; background: var(--flex); color: var(--surface); cursor: pointer; }
+.cta-btn { justify-self: start; border: 0; border-radius: 8px; padding: 11px 18px; font-size: 15px; font-weight: 700; background: var(--flex); color: var(--surface); cursor: pointer; font-family: inherit; }
 .cta-btn:focus-visible { outline-color: var(--bg); }
-.cta-note { font-size: 13.5px; border-left: 2px solid var(--flex); padding-left: 10px; opacity: 1 !important; }
-@media (min-width: 620px) { .cta { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } .cta-note { grid-column: 1 / -1; } }
+@media (min-width: 620px) { .cta { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } .cta.open { grid-template-columns: minmax(0, 1fr); } }
+.cta.open #cta-btn, .cta.open .cta-intro p { display: none; }
+.cta :focus-visible { outline-color: var(--bg); }
+.lead { display: grid; gap: 16px; }
+.lead[hidden], .lead-done[hidden] { display: none; }
+.lead fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 12px 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lead legend { font-size: 14px; font-weight: 700; padding: 0; margin-bottom: 10px; }
+.lf { display: grid; gap: 4px; align-content: start; font-size: 13.5px; }
+.lf > span { font-weight: 600; }
+.lf > span i { font-style: normal; font-weight: 400; opacity: 0.7; margin-left: 4px; }
+.lf-wide { grid-column: 1 / -1; }
+.lf input, .lf select { font: inherit; font-size: 16px; width: 100%; min-height: 42px; padding: 8px 10px; border-radius: 8px; border: 1px solid transparent; background: var(--bg); color: var(--ink); }
+.lf input[aria-invalid="true"] { border-color: var(--peak); box-shadow: 0 0 0 1px var(--peak); }
+.err { font-style: normal; font-size: 13px; font-weight: 600; color: var(--peak); }
+.lead-est { grid-column: 1 / -1; font-size: 14px; margin: 0; }
+.lead-est b { font-variation-settings: "wdth" 112; }
+.lead-act { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.lead-note { font-size: 13px; opacity: 0.7; margin: 0; }
+.lead-done { display: grid; gap: 8px; justify-items: start; border-left: 2px solid var(--flex); padding-left: 14px; }
+.lead-done h3 { font-size: 18px; font-weight: 700; }
+.ghost.light { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 40%, transparent); margin-top: 6px; }
+@media (min-width: 620px) {
+  .lead-vals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lead-contact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
 /* Assumptions */
 .assump { font-size: 14px; color: var(--muted); }
@@ -265,7 +289,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   <main class="grid">
     <section class="headline" aria-live="polite">
       <p class="big num"><span id="r-save">€0.7–1.2m</span> <span class="unit" id="r-unit">potential a year at this plant</span></p>
-      <p class="sub num" id="r-sub">4.9–8.2% of a €15m energy bill, estimated from typical values</p>
+      <p class="sub num" id="r-sub">5.0–8.4% of a €15m energy bill, estimated from typical values</p>
     </section>
 
     <section class="inputs" aria-labelledby="in-h">
@@ -282,8 +306,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         <input type="range" id="gwh" min="2" max="300" step="1" value="100">
       </div>
       <div class="field">
-        <div class="field-top"><label for="peak">Peak load<small>highest quarter hour of the year</small></label><output id="peak-out" for="peak" class="num">14.0 MW</output></div>
-        <input type="range" id="peak" min="0.5" max="25" step="0.1" value="14">
+        <div class="field-top"><label for="peak">Peak load<small>highest quarter hour of the year</small></label><output id="peak-out" for="peak" class="num">13.9 MW</output></div>
+        <input type="range" id="peak" min="0.5" max="25" step="0.1" value="13.9">
         <p class="warn" id="warn" hidden>This much electricity does not fit under this peak. Raise the peak load or lower the yearly use.</p>
       </div>
       <div class="field">
@@ -291,8 +315,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         <input type="range" id="flex" min="5" max="70" step="1" value="25">
       </div>
       <div class="field">
-        <div class="field-top"><label for="price">Electricity price<small>average, all in</small></label><output id="price-out" for="price" class="num">15.0 ct per kWh</output></div>
-        <input type="range" id="price" min="8" max="35" step="0.5" value="15">
+        <div class="field-top"><label for="price">Electricity price<small>average, all in</small></label><output id="price-out" for="price" class="num">14.5 ct per kWh</output></div>
+        <input type="range" id="price" min="8" max="35" step="0.5" value="14.5">
       </div>
       <div class="group-block">
         <h3 id="grp-h">Your portfolio</h3>
@@ -307,7 +331,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     <section class="kpis" aria-label="Key results">
       <div class="kpi"><span class="v num" id="k-pay">3.1 years</span><span class="l">payback for all four measures</span></div>
       <div class="kpi free"><span class="v num" id="k-mw">2.4 MW</span><span class="l" id="k-mw-l">grid capacity freed for electrification</span></div>
-      <div class="kpi"><span class="v num" id="k-co2">360 t</span><span class="l">less CO₂ a year</span></div>
+      <div class="kpi"><span class="v num" id="k-co2">1,020 t</span><span class="l">less CO₂ a year</span></div>
     </section>
 
     <figure class="curve">
@@ -334,7 +358,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     </section>
 
     <section class="scale" aria-label="Group potential">
-      <p class="g-big num" id="g-save">€4.4–7.4m</p>
+      <p class="g-big num" id="g-save">€4.4–7.3m</p>
       <div class="g-l"><p id="g-text">a year if all 6 sites in the portfolio follow the same plan. Same scan, same offer, every site.</p><button type="button" class="use" id="g-change">Change number of sites</button></div>
     </section>
 
@@ -348,13 +372,53 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       </ol>
     </section>
 
-    <section class="cta" aria-labelledby="cta-h">
-      <div>
+    <section class="cta" id="cta" aria-labelledby="cta-h">
+      <div class="cta-intro">
         <h2 id="cta-h">Get your exact numbers</h2>
-        <p>Talk to us about an on-site scan that measures your exact numbers. Share 12 months of 15-minute data and get a ranked list and a first offer within 10 days.</p>
+        <p id="cta-p">Talk to us about an on-site scan that measures your exact numbers. Share 12 months of 15-minute data and get a ranked list and a first offer within 10 days.</p>
       </div>
       <button type="button" class="cta-btn" id="cta-btn">Talk to us about a scan</button>
-      <p class="cta-note" id="cta-note" role="status" hidden></p>
+
+      <form class="lead" id="lead" novalidate hidden>
+        <fieldset class="lead-vals">
+          <legend>Your values, from the estimate above</legend>
+          <label class="lf lf-wide"><span>Type</span>
+            <select id="f-type">
+              <option value="dc">Data center</option><option value="brewery">Brewery</option>
+              <option value="dairy">Dairy</option><option value="meat">Meat processing</option>
+            </select></label>
+          <label class="lf"><span>Electricity use, GWh a year</span><input type="number" id="f-gwh" inputmode="decimal" min="2" max="300" step="1"></label>
+          <label class="lf"><span>Peak load, MW</span><input type="number" id="f-peak" inputmode="decimal" min="0.5" max="25" step="0.1"></label>
+          <label class="lf"><span>Flexible load, % of load</span><input type="number" id="f-flex" inputmode="decimal" min="5" max="70" step="1"></label>
+          <label class="lf"><span>Electricity price, ct per kWh</span><input type="number" id="f-price" inputmode="decimal" min="8" max="35" step="0.5"></label>
+          <label class="lf"><span id="f-sites-l">Similar sites</span><input type="number" id="f-plants" inputmode="numeric" min="1" max="60" step="1"></label>
+          <p class="lead-est">First estimate: <b id="f-est">€0.7–1.2m</b> a year</p>
+        </fieldset>
+        <fieldset class="lead-contact">
+          <legend>Your contact details</legend>
+          <label class="lf"><span>Name</span><input type="text" id="f-name" autocomplete="name" required aria-describedby="e-name"><em class="err" id="e-name" hidden></em></label>
+          <label class="lf"><span>Work email</span><input type="email" id="f-mail" autocomplete="email" inputmode="email" required aria-describedby="e-mail"><em class="err" id="e-mail" hidden></em></label>
+          <label class="lf"><span>Company</span><input type="text" id="f-co" autocomplete="organization" required aria-describedby="e-co"><em class="err" id="e-co" hidden></em></label>
+          <label class="lf"><span>Position <i>optional</i></span><input type="text" id="f-pos" autocomplete="organization-title"></label>
+          <label class="lf"><span>Industry <i>optional</i></span>
+            <select id="f-ind">
+              <option value="">Select</option><option>Data centers</option><option>Food and beverage</option>
+              <option>Other manufacturing</option><option>Real estate and buildings</option><option>Other</option>
+            </select></label>
+          <label class="lf"><span>Phone <i>optional</i></span><input type="tel" id="f-tel" autocomplete="tel" inputmode="tel" aria-describedby="e-tel"><em class="err" id="e-tel" hidden></em></label>
+        </fieldset>
+        <div class="lead-act">
+          <button type="submit" class="cta-btn">Request my scan</button>
+          <p class="lead-note">Concept demo: nothing is sent or stored.</p>
+        </div>
+      </form>
+
+      <div class="lead-done" id="lead-done" role="status" tabindex="-1" hidden>
+        <h3 id="done-h">Thanks</h3>
+        <p id="done-p"></p>
+        <p class="lead-note">Concept demo: no data was sent.</p>
+        <button type="button" class="ghost light" id="done-back">Back to the estimate</button>
+      </div>
     </section>
 
     <details class="assump">
@@ -365,7 +429,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         <li>Efficiency saves 10% of the flexible load plus 2% of the rest, at €450 invested per MWh saved each year.</li>
         <li>The battery covers 15% of the peak for two hours at €400 per kWh installed, with 300 cycles a year at a €60 per MWh spread.</li>
         <li>Load management costs €40k per plant plus €10k per MW of peak; the shifting software €60k.</li>
-        <li>Typical ranges: price from BDEW 2026 averages by consumption size; peak from typical operating hours of the plant type; electricity use and flexible share are rough estimates from public energy guides (cooling is about 40% of brewery electricity, about 25% in dairies and around 50% in meat processing; breweries use about 8–14 kWh of electricity per hectolitre).</li>
+        <li>Each plant type starts at the middle of its typical range. The ranges describe mid-size sites in Germany, Austria and Switzerland and leave out the smallest and the largest, roughly the middle two thirds. Electricity price comes from BDEW 2026 averages by consumption size; peak load from typical operating hours of the type; electricity use and flexible share are modelling assumptions built on public data (Germany has about 2,000 data centers above 100 kW and about 100 above 5 MW; a dairy processes about 250,000 tonnes of milk a year on average; cooling is about 40% of brewery electricity, about 25% in dairies and around 50% in meat processing; breweries use about 8–14 kWh per hectolitre). Peak load and price ranges move with your electricity use, because both depend on site size.</li>
         <li>Data centers: cooling and flexible AI workloads form the flexible share; efficiency saves 8% of it plus 1% of the rest; 15% of it shifts; load management caps at most 4% of the peak; the battery covers 20% of the peak.</li>
         <li>CO₂ at 0.34 t per MWh of electricity saved (German grid mix 2025, UBA). The curve is a modelled working day of a food plant, scaled to your values.</li>
       </ul>
@@ -374,7 +438,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
   <dialog class="scan" id="scan-dlg" aria-labelledby="dlg-h">
     <h2 id="dlg-h">Want your exact numbers?</h2>
-    <p>This is a first estimate from typical values: <b id="dlg-range">€0.7–1.1m</b> a year. An on-site scan measures your plant and ranks every measure with its exact savings and payback, within 10 days.</p>
+    <p>This is a first estimate from typical values: <b id="dlg-range">€0.7–1.2m</b> a year. An on-site scan measures your plant and ranks every measure with its exact savings and payback, within 10 days.</p>
     <div class="dlg-act">
       <button type="button" class="cta-btn" id="dlg-go">Talk to us about a scan</button>
       <button type="button" class="ghost" id="dlg-close">Keep exploring</button>
@@ -392,11 +456,12 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     effCapexPerMWh: 450, batShare: 0.15, batHours: 2, batCapexPerMWh: 400000,
     batCycles: 300, batSpread: 60, batEff: 0.88, co2: 0.34, hurdle: 3, payMax: 6
   };
+  /* Each type starts at the middle of its typical range (mid-size DACH sites, outliers left out) */
   var ARCH = {
-    brewery: { name: "breweries", v: { gwh: 15, peak: 3.4, flex: 35, price: 17, plants: 8 }, gwh: [3, 40], lf: [0.45, 0.6], flex: [30, 45] },
-    dairy: { name: "dairies", v: { gwh: 40, peak: 7, flex: 30, price: 16, plants: 5 }, gwh: [10, 80], lf: [0.55, 0.7], flex: [25, 40] },
-    meat: { name: "meat plants", v: { gwh: 15, peak: 3.2, flex: 50, price: 17, plants: 6 }, gwh: [5, 40], lf: [0.5, 0.65], flex: [40, 60] },
-    dc: { name: "data centers", dc: true, v: { gwh: 100, peak: 14, flex: 25, price: 15, plants: 6 }, gwh: [40, 250], lf: [0.75, 0.9], flex: [15, 35] }
+    brewery: { name: "breweries", plants: 8, gwh: [5, 20], lf: [0.45, 0.6], flex: [30, 45] },
+    dairy: { name: "dairies", plants: 5, gwh: [20, 60], lf: [0.55, 0.7], flex: [25, 40] },
+    meat: { name: "meat plants", plants: 6, gwh: [6, 24], lf: [0.5, 0.65], flex: [40, 60] },
+    dc: { name: "data centers", dc: true, plants: 6, gwh: [50, 150], lf: [0.75, 0.9], flex: [15, 35] }
   };
   var arch = "dc";
   var ids = ["gwh", "peak", "flex", "price", "plants"];
@@ -597,13 +662,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
   function read() {
     var o = {};
-    el("g-change").addEventListener("click", function () {
-    var f = el("plants");
-    f.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
-    setTimeout(function () { f.focus({ preventScroll: true }); }, 350);
-  });
-
-  ids.forEach(function (id) { o[id] = parseFloat(el(id).value); });
+    ids.forEach(function (id) { o[id] = parseFloat(el(id).value); });
     return o;
   }
   function paintTracks() {
@@ -642,13 +701,17 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   var BENCH_IDS = ["gwh", "peak", "flex", "price"];
   function bands(i) {
     var a = ARCH[arch], base = i.gwh * 1000 / 8760;
-    var pc = i.gwh < 20 ? 17.2 : (i.gwh < 70 ? 15.8 : 14.5);
+    var pc = i.gwh < 20 ? 17 : (i.gwh < 70 ? 16 : 14.5), at = "at " + i.gwh + " GWh";
     return {
       gwh: { lo: a.gwh[0], hi: a.gwh[1], dec: 0, unit: " GWh", what: "for " + a.name },
-      peak: { lo: base / a.lf[1], hi: base / a.lf[0], dec: 1, unit: " MW", what: "at this use" },
+      peak: { lo: base / a.lf[1], hi: base / a.lf[0], dec: 1, unit: " MW", what: at },
       flex: { lo: a.flex[0], hi: a.flex[1], dec: 0, unit: "%", what: "for " + a.name },
-      price: { lo: pc - 1.5, hi: pc + 1.5, dec: 1, unit: " ct", what: "at this size" }
+      price: { lo: pc - 1.5, hi: pc + 1.5, dec: 1, unit: " ct", what: at }
     };
+  }
+  function snap(id, v) {
+    var s = el(id), st = parseFloat(s.step), d = st < 1 ? 1 : 0;
+    return Math.min(Math.max(Math.round(v / st) * st, parseFloat(s.min)), parseFloat(s.max)).toFixed(d);
   }
   var bench = {};
   BENCH_IDS.forEach(function (id) {
@@ -662,8 +725,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     s.parentNode.insertBefore(wrap, s.nextSibling);
     bench[id] = { band: band, t: t, use: use };
     use.addEventListener("click", function () {
-      var b = bands(read())[id], st = parseFloat(s.step), mid = (b.lo + b.hi) / 2;
-      s.value = Math.min(Math.max(Math.round(mid / st) * st, parseFloat(s.min)), parseFloat(s.max));
+      var b = bands(read())[id];
+      s.value = snap(id, (b.lo + b.hi) / 2);
       render();
     });
   });
@@ -713,6 +776,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     while (list.firstChild) list.removeChild(list.firstChild);
     r.measures.forEach(function (m, n) { list.appendChild(measureItem(m, n)); });
     animateTo(c);
+    if (typeof syncForm === "function" && !lead.hidden) syncForm(i);
   }
 
   ids.forEach(function (id) {
@@ -721,18 +785,16 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   document.querySelectorAll(".presets button").forEach(function (b) {
     b.addEventListener("click", function () {
       arch = b.getAttribute("data-preset");
-      var p = ARCH[arch].v;
-      ids.forEach(function (id) { el(id).value = p[id]; });
+      var a = ARCH[arch];
+      el("gwh").value = snap("gwh", (a.gwh[0] + a.gwh[1]) / 2);
+      var B = bands(read());
+      el("flex").value = snap("flex", (a.flex[0] + a.flex[1]) / 2);
+      el("peak").value = snap("peak", (B.peak.lo + B.peak.hi) / 2);
+      el("price").value = snap("price", (B.price.lo + B.price.hi) / 2);
+      el("plants").value = a.plants;
       document.querySelectorAll(".presets button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
       render();
     });
-  });
-  el("cta-btn").addEventListener("click", function () {
-    var i = read(), n = el("cta-note");
-    n.textContent = "Concept demo: on the live page this opens a short form with your values already filled in (" +
-      i.gwh + " GWh, " + i.peak.toFixed(1) + " MW, " + i.flex + "% flexible, " + i.plants + (ARCH[arch].dc ? " site" : " plant") + (i.plants === 1 ? "" : "s") +
-      ") and books a call with the energy team about an on-site scan.";
-    n.hidden = false;
   });
   /* Scan prompt: on demand from the locked list, and once on its own after some exploring */
   var dlg = el("scan-dlg"), shown = false, moves = 0, timer = null;
@@ -758,9 +820,76 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   el("dlg-go").addEventListener("click", function () {
     closeDlg();
     el("cta-btn").click();
-    el("cta-h").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   });
-  render();
+
+  /* Lead form in the call-to-action box: values mirror the sliders, contact details are checked before "sending" */
+  var cta = el("cta"), lead = el("lead"), done = el("lead-done");
+  var FREE = /@(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|ymail|icloud|me|aol|t-online|freenet|proton|protonmail|mail|posteo)\.[a-z.]+$/i;
+  var FIELD_MAP = { "f-gwh": "gwh", "f-peak": "peak", "f-flex": "flex", "f-price": "price", "f-plants": "plants" };
+  function syncForm(i, force) {
+    var map = { "f-gwh": i.gwh, "f-peak": i.peak.toFixed(1), "f-flex": i.flex, "f-price": i.price.toFixed(1), "f-plants": i.plants };
+    Object.keys(map).forEach(function (k) { var f = el(k); if (force || document.activeElement !== f) f.value = map[k]; });
+    el("f-type").value = arch;
+    el("f-sites-l").textContent = ARCH[arch].dc ? "Similar sites" : "Similar plants";
+    el("f-est").textContent = el("r-save").textContent;
+  }
+  Object.keys(FIELD_MAP).forEach(function (k) {
+    el(k).addEventListener("change", function () {
+      var id = FIELD_MAP[k], v = parseFloat(this.value);
+      if (isNaN(v)) { render(); return; }
+      el(id).value = snap(id, v);
+      render();
+      syncForm(read(), true);
+    });
+  });
+  el("f-type").addEventListener("change", function () {
+    document.querySelector('.presets [data-preset="' + this.value + '"]').click();
+    syncForm(read(), true);
+  });
+  function openLead() {
+    cta.classList.add("open"); lead.hidden = false; done.hidden = true;
+    syncForm(read());
+    cta.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    setTimeout(function () { el("f-name").focus({ preventScroll: true }); }, reduce ? 0 : 400);
+  }
+  el("cta-btn").addEventListener("click", openLead);
+  function fail(inputId, errId, msg) {
+    var f = el(inputId), e = el(errId);
+    f.setAttribute("aria-invalid", "true"); e.textContent = msg; e.hidden = false;
+  }
+  function clearErr(inputId, errId) {
+    el(inputId).removeAttribute("aria-invalid"); el(errId).hidden = true;
+  }
+  [["f-name", "e-name"], ["f-mail", "e-mail"], ["f-co", "e-co"], ["f-tel", "e-tel"]].forEach(function (p) {
+    el(p[0]).addEventListener("input", function () { clearErr(p[0], p[1]); });
+  });
+  lead.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var bad = [], name = el("f-name").value.trim(), mail = el("f-mail").value.trim(), co = el("f-co").value.trim(), tel = el("f-tel").value.trim();
+    ["f-name", "f-mail", "f-co", "f-tel"].forEach(function (id, n) { clearErr(id, ["e-name", "e-mail", "e-co", "e-tel"][n]); });
+    if (name.length < 2) { fail("f-name", "e-name", "Please enter your name."); bad.push("f-name"); }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { fail("f-mail", "e-mail", "Please enter a valid email address."); bad.push("f-mail"); }
+    else if (FREE.test(mail)) { fail("f-mail", "e-mail", "Please use your work email address."); bad.push("f-mail"); }
+    if (co.length < 2) { fail("f-co", "e-co", "Please enter your company."); bad.push("f-co"); }
+    if (tel && !/^[+()\d][\d\s()\/.-]{5,}$/.test(tel)) { fail("f-tel", "e-tel", "Please check the phone number."); bad.push("f-tel"); }
+    if (bad.length) { el(bad[0]).focus(); return; }
+    var i = read(), unit = ARCH[arch].dc ? "site" : "plant";
+    el("done-h").textContent = "Thanks, " + name.split(/\s+/)[0] + ".";
+    el("done-p").textContent = "We will get back to you at " + mail + " within 2 working days to plan the scan for " + co + ". Your starting point: " +
+      i.gwh + " GWh, " + i.peak.toFixed(1) + " MW peak, " + i.flex + "% flexible, " + i.plants + " " + unit + (i.plants === 1 ? "" : "s") +
+      ", a first estimate of " + el("r-save").textContent + " a year.";
+    lead.hidden = true; done.hidden = false; done.focus();
+  });
+  el("done-back").addEventListener("click", function () {
+    cta.classList.remove("open"); done.hidden = true; lead.reset(); syncForm(read());
+    el("r-save").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  });
+  el("g-change").addEventListener("click", function () {
+    var f = el("plants");
+    f.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    setTimeout(function () { f.focus({ preventScroll: true }); }, reduce ? 0 : 350);
+  });
+  document.querySelector('.presets [data-preset="dc"]').click();
 })();
 </script>
 </body>
