@@ -303,20 +303,20 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       </div>
       <div class="field">
         <div class="field-top"><label for="gwh">Electricity use</label><output id="gwh-out" for="gwh" class="num">100 GWh a year</output></div>
-        <input type="range" id="gwh" min="2" max="300" step="1" value="100">
+        <input type="range" id="gwh" min="10" max="300" step="1" value="100">
       </div>
       <div class="field">
         <div class="field-top"><label for="peak">Peak load<small>highest quarter hour of the year</small></label><output id="peak-out" for="peak" class="num">13.9 MW</output></div>
-        <input type="range" id="peak" min="0.5" max="25" step="0.1" value="13.9">
+        <input type="range" id="peak" min="1" max="50" step="0.1" value="13.9">
         <p class="warn" id="warn" hidden>This much electricity does not fit under this peak. Raise the peak load or lower the yearly use.</p>
       </div>
       <div class="field">
         <div class="field-top"><label for="flex">Flexible load<small id="flex-hint">cooling, compressed air, cleaning</small></label><output id="flex-out" for="flex" class="num">25% of load</output></div>
-        <input type="range" id="flex" min="5" max="70" step="1" value="25">
+        <input type="range" id="flex" min="5" max="50" step="1" value="25">
       </div>
       <div class="field">
         <div class="field-top"><label for="price">Electricity price<small>average, all in</small></label><output id="price-out" for="price" class="num">14.5 ct per kWh</output></div>
-        <input type="range" id="price" min="8" max="35" step="0.5" value="14.5">
+        <input type="range" id="price" min="8" max="25" step="0.5" value="14.5">
       </div>
       <div class="group-block">
         <h3 id="grp-h">Your portfolio</h3>
@@ -324,7 +324,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       </div>
       <div class="field">
         <div class="field-top"><label for="plants" id="plants-label">Similar sites<small>including this one</small></label><output id="plants-out" for="plants" class="num">6 sites</output></div>
-        <input type="range" id="plants" min="1" max="60" step="1" value="6">
+        <input type="range" id="plants" min="1" max="30" step="1" value="6">
       </div>
     </section>
 
@@ -386,6 +386,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
             <select id="f-type">
               <option value="dc">Data center</option><option value="brewery">Brewery</option>
               <option value="dairy">Dairy</option><option value="meat">Meat processing</option>
+              <option value="other">Other</option>
             </select></label>
           <label class="lf"><span>Electricity use, GWh a year</span><input type="number" id="f-gwh" inputmode="decimal" min="2" max="300" step="1"></label>
           <label class="lf"><span>Peak load, MW</span><input type="number" id="f-peak" inputmode="decimal" min="0.5" max="25" step="0.1"></label>
@@ -429,7 +430,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         <li>Efficiency saves 10% of the flexible load plus 2% of the rest, at €450 invested per MWh saved each year.</li>
         <li>The battery covers 15% of the peak for two hours at €400 per kWh installed, with 300 cycles a year at a €60 per MWh spread.</li>
         <li>Load management costs €40k per plant plus €10k per MW of peak; the shifting software €60k.</li>
-        <li>Each plant type starts at the middle of its typical range. The ranges describe mid-size sites in Germany, Austria and Switzerland and leave out the smallest and the largest, roughly the middle two thirds. Electricity price comes from BDEW 2026 averages by consumption size; peak load from typical operating hours of the type; electricity use and flexible share are modelling assumptions built on public data (Germany has about 2,000 data centers above 100 kW and about 100 above 5 MW; a dairy processes about 250,000 tonnes of milk a year on average; cooling is about 40% of brewery electricity, about 25% in dairies and around 50% in meat processing; breweries use about 8–14 kWh per hectolitre). Peak load and price ranges move with your electricity use, because both depend on site size.</li>
+        <li>Each plant type starts at the middle of its typical range. The ranges describe mid-size sites in Germany, Austria and Switzerland and leave out the smallest and the largest, roughly the middle two thirds. Electricity price comes from BDEW 2026 averages by consumption size; peak load from typical operating hours of the type; electricity use and flexible share are modelling assumptions built on public data (Germany has about 2,000 data centers above 100 kW and about 100 above 5 MW; a dairy processes about 250,000 tonnes of milk a year on average; cooling is about 40% of brewery electricity, about 25% in dairies and around 50% in meat processing; breweries use about 8–14 kWh per hectolitre). Peak load and price ranges move with your electricity use, because both depend on site size. The slider scales also follow the plant type and are set so that the typical peak load fits even at the top of the electricity scale; the top end of each scale stands for that value or more and is shown with a "+", and the demo calculates with the top value.</li>
         <li>Data centers: cooling and flexible AI workloads form the flexible share; efficiency saves 8% of it plus 1% of the rest; 15% of it shifts; load management caps at most 4% of the peak; the battery covers 20% of the peak.</li>
         <li>CO₂ at 0.34 t per MWh of electricity saved (German grid mix 2025, UBA). The curve is a modelled working day of a food plant, scaled to your values.</li>
       </ul>
@@ -458,11 +459,24 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   };
   /* Each type starts at the middle of its typical range (mid-size DACH sites, outliers left out) */
   var ARCH = {
-    brewery: { name: "breweries", plants: 8, gwh: [5, 20], lf: [0.45, 0.6], flex: [30, 45] },
-    dairy: { name: "dairies", plants: 5, gwh: [20, 60], lf: [0.55, 0.7], flex: [25, 40] },
-    meat: { name: "meat plants", plants: 6, gwh: [6, 24], lf: [0.5, 0.65], flex: [40, 60] },
-    dc: { name: "data centers", dc: true, plants: 6, gwh: [50, 150], lf: [0.75, 0.9], flex: [15, 35] }
+    brewery: { name: "breweries", label: "brewery", plants: 8, gwh: [5, 20], lf: [0.45, 0.6], flex: [30, 45],
+      scale: { gwh: [1, 40], peak: [0.1, 12], flex: [10, 60], price: [10, 30], plants: [1, 40] } },
+    dairy: { name: "dairies", label: "dairy", plants: 5, gwh: [20, 60], lf: [0.55, 0.7], flex: [25, 40],
+      scale: { gwh: [5, 100], peak: [0.5, 25], flex: [10, 60], price: [10, 30], plants: [1, 30] } },
+    meat: { name: "meat plants", label: "meat processing plant", plants: 6, gwh: [6, 24], lf: [0.5, 0.65], flex: [40, 60],
+      scale: { gwh: [2, 50], peak: [0.3, 12], flex: [20, 75], price: [10, 30], plants: [1, 30] } },
+    dc: { name: "data centers", label: "data center", dc: true, plants: 6, gwh: [50, 150], lf: [0.75, 0.9], flex: [15, 35],
+      scale: { gwh: [10, 300], peak: [1, 50], flex: [5, 50], price: [8, 25], plants: [1, 30] } }
   };
+  /* Slider scales follow the plant type. The top of each scale stands for "this much or more" and shows a "+". */
+  function setScale() {
+    var sc = ARCH[arch].scale;
+    ids.forEach(function (id) {
+      [el(id), el("f-" + id)].forEach(function (f) { f.min = sc[id][0]; f.max = sc[id][1]; });
+    });
+  }
+  function atMax(id) { var s = el(id); return parseFloat(s.value) >= parseFloat(s.max) - 1e-9; }
+  function plus(id) { return atMax(id) ? "+" : ""; }
   var arch = "dc";
   var ids = ["gwh", "peak", "flex", "price", "plants"];
   function el(id) { return document.getElementById(id); }
@@ -701,7 +715,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   var BENCH_IDS = ["gwh", "peak", "flex", "price"];
   function bands(i) {
     var a = ARCH[arch], base = i.gwh * 1000 / 8760;
-    var pc = i.gwh < 20 ? 17 : (i.gwh < 70 ? 16 : 14.5), at = "at " + i.gwh + " GWh";
+    var pc = i.gwh < 20 ? 17 : (i.gwh < 70 ? 16 : 14.5), at = "at " + i.gwh + plus("gwh") + " GWh";
     return {
       gwh: { lo: a.gwh[0], hi: a.gwh[1], dec: 0, unit: " GWh", what: "for " + a.name },
       peak: { lo: base / a.lf[1], hi: base / a.lf[0], dec: 1, unit: " MW", what: at },
@@ -748,12 +762,12 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     var i = read(), r = model(i), c = curves(i, r);
     paintTracks();
     paintBench(i);
-    el("gwh-out").textContent = i.gwh + " GWh a year";
-    el("peak-out").textContent = i.peak.toFixed(1) + " MW";
-    el("flex-out").textContent = i.flex + "% of load";
-    el("price-out").textContent = i.price.toFixed(1) + " ct per kWh";
+    el("gwh-out").textContent = i.gwh + plus("gwh") + " GWh a year";
+    el("peak-out").textContent = i.peak.toFixed(1) + plus("peak") + " MW";
+    el("flex-out").textContent = i.flex + "%" + plus("flex") + " of load";
+    el("price-out").textContent = i.price.toFixed(1) + plus("price") + " ct per kWh";
     var dc = !!ARCH[arch].dc, unit = dc ? "site" : "plant";
-    el("plants-out").textContent = i.plants + " " + unit + (i.plants === 1 ? "" : "s");
+    el("plants-out").textContent = i.plants + plus("plants") + " " + unit + (i.plants === 1 ? "" : "s");
     el("plants-label").firstChild.textContent = dc ? "Similar sites" : "Similar plants";
     el("in-h").textContent = dc ? "Your site" : "Your plant";
     el("grp-h").textContent = dc ? "Your portfolio" : "Your group";
@@ -786,6 +800,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     b.addEventListener("click", function () {
       arch = b.getAttribute("data-preset");
       var a = ARCH[arch];
+      formOther = false;
+      setScale();
       el("gwh").value = snap("gwh", (a.gwh[0] + a.gwh[1]) / 2);
       var B = bands(read());
       el("flex").value = snap("flex", (a.flex[0] + a.flex[1]) / 2);
@@ -826,10 +842,11 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   var cta = el("cta"), lead = el("lead"), done = el("lead-done");
   var FREE = /@(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|ymail|icloud|me|aol|t-online|freenet|proton|protonmail|mail|posteo)\.[a-z.]+$/i;
   var FIELD_MAP = { "f-gwh": "gwh", "f-peak": "peak", "f-flex": "flex", "f-price": "price", "f-plants": "plants" };
+  var formOther = false;
   function syncForm(i, force) {
     var map = { "f-gwh": i.gwh, "f-peak": i.peak.toFixed(1), "f-flex": i.flex, "f-price": i.price.toFixed(1), "f-plants": i.plants };
     Object.keys(map).forEach(function (k) { var f = el(k); if (force || document.activeElement !== f) f.value = map[k]; });
-    el("f-type").value = arch;
+    el("f-type").value = formOther ? "other" : arch;
     el("f-sites-l").textContent = ARCH[arch].dc ? "Similar sites" : "Similar plants";
     el("f-est").textContent = el("r-save").textContent;
   }
@@ -843,6 +860,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     });
   });
   el("f-type").addEventListener("change", function () {
+    if (this.value === "other") { formOther = true; return; }
     document.querySelector('.presets [data-preset="' + this.value + '"]').click();
     syncForm(read(), true);
   });
@@ -875,13 +893,15 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     if (bad.length) { el(bad[0]).focus(); return; }
     var i = read(), unit = ARCH[arch].dc ? "site" : "plant";
     el("done-h").textContent = "Thanks, " + name.split(/\s+/)[0] + ".";
-    el("done-p").textContent = "We will get back to you at " + mail + " within 2 working days to plan the scan for " + co + ". Your starting point: " +
-      i.gwh + " GWh, " + i.peak.toFixed(1) + " MW peak, " + i.flex + "% flexible, " + i.plants + " " + unit + (i.plants === 1 ? "" : "s") +
+    el("done-p").textContent = "We will get back to you at " + mail + " within 2 working days to plan the scan for " + co + ". Your starting point" +
+      (formOther ? "" : " for a " + ARCH[arch].label) + ": " +
+      i.gwh + plus("gwh") + " GWh, " + i.peak.toFixed(1) + plus("peak") + " MW peak, " + i.flex + "%" + plus("flex") + " flexible, " + i.plants + plus("plants") + " " + unit + (i.plants === 1 ? "" : "s") +
       ", a first estimate of " + el("r-save").textContent + " a year.";
+    if (formOther) el("done-p").textContent += " You picked another plant type, so we will start by agreeing which values fit.";
     lead.hidden = true; done.hidden = false; done.focus();
   });
   el("done-back").addEventListener("click", function () {
-    cta.classList.remove("open"); done.hidden = true; lead.reset(); syncForm(read());
+    cta.classList.remove("open"); done.hidden = true; lead.reset(); formOther = false; syncForm(read(), true);
     el("r-save").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   });
   el("g-change").addEventListener("click", function () {
