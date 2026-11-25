@@ -227,6 +227,23 @@ input[type="range"]:focus-visible { outline-offset: 3px; }
 .assump summary { cursor: pointer; font-weight: 600; color: var(--ink); padding: 4px 0; }
 .assump ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
 
+/* Locked ranking: the shape is visible, the numbers come with the scan */
+.lock { position: relative; }
+#measures { filter: blur(6px); user-select: none; pointer-events: none; }
+.lock-over { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 14px; padding: 20px; text-align: center; background: color-mix(in srgb, var(--bg) 40%, transparent); }
+.lock-over p { max-width: 42ch; font-size: 15px; }
+.lock-over .cta-btn { justify-self: center; }
+@media (prefers-reduced-transparency: reduce) { .lock-over { background: var(--bg); } }
+
+/* Scan prompt */
+dialog.scan { border: 0; border-radius: 14px; padding: 24px 22px 20px; max-width: min(440px, calc(100vw - 32px)); background: var(--surface); color: var(--ink); box-shadow: 0 18px 50px var(--shadow); }
+dialog.scan::backdrop { background: rgba(12, 20, 30, 0.55); }
+dialog.scan h2 { font-size: 21px; font-weight: 750; font-variation-settings: "wdth" 112; margin-bottom: 8px; }
+dialog.scan p { font-size: 15px; color: var(--muted); }
+dialog.scan p b { color: var(--ink); }
+.dlg-act { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.ghost { border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 8px; padding: 11px 16px; font-size: 15px; font-weight: 600; cursor: pointer; }
+
 footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
 </style>
 </head>
@@ -243,45 +260,45 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
   <main class="grid">
     <section class="headline" aria-live="polite">
-      <p class="big num"><span id="r-save">€310–520k</span> <span class="unit" id="r-unit">potential a year at this plant</span></p>
-      <p class="sub num" id="r-sub">9–16% of a €3.3m energy bill, estimated from typical values</p>
+      <p class="big num"><span id="r-save">€0.7–1.2m</span> <span class="unit" id="r-unit">potential a year at this plant</span></p>
+      <p class="sub num" id="r-sub">4.9–8.2% of a €15m energy bill, estimated from typical values</p>
     </section>
 
     <section class="inputs" aria-labelledby="in-h">
       <h2 id="in-h">Your plant</h2>
       <p class="hint">Pick the closest plant type, then adjust. The blue band under each value shows what is typical for it.</p>
       <div class="presets" role="group" aria-label="Plant type">
-        <button type="button" data-preset="brewery" aria-pressed="true">Brewery</button>
+        <button type="button" data-preset="dc" aria-pressed="true">Data center</button>
+        <button type="button" data-preset="brewery" aria-pressed="false">Brewery</button>
         <button type="button" data-preset="dairy" aria-pressed="false">Dairy</button>
         <button type="button" data-preset="meat" aria-pressed="false">Meat processing</button>
-        <button type="button" data-preset="dc" aria-pressed="false">Data center</button>
       </div>
       <div class="field">
-        <div class="field-top"><label for="gwh">Electricity use</label><output id="gwh-out" for="gwh" class="num">20 GWh a year</output></div>
-        <input type="range" id="gwh" min="2" max="300" step="1" value="20">
+        <div class="field-top"><label for="gwh">Electricity use</label><output id="gwh-out" for="gwh" class="num">100 GWh a year</output></div>
+        <input type="range" id="gwh" min="2" max="300" step="1" value="100">
       </div>
       <div class="field">
-        <div class="field-top"><label for="peak">Peak load<small>highest quarter hour of the year</small></label><output id="peak-out" for="peak" class="num">4.5 MW</output></div>
-        <input type="range" id="peak" min="0.5" max="25" step="0.1" value="4.5">
+        <div class="field-top"><label for="peak">Peak load<small>highest quarter hour of the year</small></label><output id="peak-out" for="peak" class="num">14.0 MW</output></div>
+        <input type="range" id="peak" min="0.5" max="25" step="0.1" value="14">
         <p class="warn" id="warn" hidden>This much electricity does not fit under this peak. Raise the peak load or lower the yearly use.</p>
       </div>
       <div class="field">
-        <div class="field-top"><label for="flex">Flexible load<small id="flex-hint">cooling, compressed air, cleaning</small></label><output id="flex-out" for="flex" class="num">30% of load</output></div>
-        <input type="range" id="flex" min="5" max="70" step="1" value="35">
+        <div class="field-top"><label for="flex">Flexible load<small id="flex-hint">cooling, compressed air, cleaning</small></label><output id="flex-out" for="flex" class="num">25% of load</output></div>
+        <input type="range" id="flex" min="5" max="70" step="1" value="25">
       </div>
       <div class="field">
-        <div class="field-top"><label for="price">Electricity price<small>average, all in</small></label><output id="price-out" for="price" class="num">18.0 ct per kWh</output></div>
-        <input type="range" id="price" min="8" max="35" step="0.5" value="16.5">
+        <div class="field-top"><label for="price">Electricity price<small>average, all in</small></label><output id="price-out" for="price" class="num">15.0 ct per kWh</output></div>
+        <input type="range" id="price" min="8" max="35" step="0.5" value="15">
       </div>
       <div class="field">
-        <div class="field-top"><label for="plants" id="plants-label">Similar plants in the group</label><output id="plants-out" for="plants" class="num">8 plants</output></div>
-        <input type="range" id="plants" min="1" max="60" step="1" value="8">
+        <div class="field-top"><label for="plants" id="plants-label">Similar plants in the group</label><output id="plants-out" for="plants" class="num">6 sites</output></div>
+        <input type="range" id="plants" min="1" max="60" step="1" value="6">
       </div>
     </section>
 
     <section class="kpis" aria-label="Key results">
-      <div class="kpi"><span class="v num" id="k-pay">2.7 years</span><span class="l">payback for all four measures</span></div>
-      <div class="kpi free"><span class="v num" id="k-mw">1.2 MW</span><span class="l" id="k-mw-l">grid capacity freed for electrification</span></div>
+      <div class="kpi"><span class="v num" id="k-pay">3.1 years</span><span class="l">payback for all four measures</span></div>
+      <div class="kpi free"><span class="v num" id="k-mw">2.4 MW</span><span class="l" id="k-mw-l">grid capacity freed for electrification</span></div>
       <div class="kpi"><span class="v num" id="k-co2">360 t</span><span class="l">less CO₂ a year</span></div>
     </section>
 
@@ -297,13 +314,19 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
     <section class="rank" aria-labelledby="rk-h">
       <h2 id="rk-h">What to do first</h2>
-      <p class="intro">Quickest payback first. Each measure maps to a building block that already exists. The bar shows payback against a three-year hurdle.</p>
-      <ol id="measures"></ol>
+      <p class="intro">The scan ranks every measure by payback and maps it to a building block that already exists. The exact numbers come from your own data.</p>
+      <div class="lock">
+        <ol id="measures" aria-hidden="true"></ol>
+        <div class="lock-over">
+          <p><b>Exact numbers per measure come with the scan.</b> We measure your plant and rank every measure by savings and payback.</p>
+          <button type="button" class="cta-btn" id="lock-btn">Get my exact numbers</button>
+        </div>
+      </div>
       <p class="note">Measures above three years work best as a service: financed, with no upfront investment for the plant.</p>
     </section>
 
     <section class="scale" aria-label="Group potential">
-      <p class="g-big num" id="g-save">€2.5–4.1m</p>
+      <p class="g-big num" id="g-save">€4.4–7.4m</p>
       <p class="g-l" id="g-text">a year if all 8 plants in the group follow the same plan. Same scan, same offer, every plant.</p>
     </section>
 
@@ -329,18 +352,26 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     <details class="assump">
       <summary>How the demo calculates</summary>
       <ul>
-        <li>Demand charge €100 per kW and year. Load management cuts the peak by 40% of the flexible share, at most 15%.</li>
+        <li>Demand charge €130 per kW and year (2026 medium-voltage grid fees in Germany, mostly €100–200). Load management cuts the peak by 40% of the flexible share, at most 15%.</li>
         <li>Load shifting moves 25% of the flexible energy to cheaper quarter hours at a €45 per MWh spread. It needs a dynamic power contract.</li>
         <li>Efficiency saves 10% of the flexible load plus 2% of the rest, at €450 invested per MWh saved each year.</li>
-        <li>The battery covers 15% of the peak for two hours at €350 per kWh installed, with 300 cycles a year at a €60 per MWh spread.</li>
+        <li>The battery covers 15% of the peak for two hours at €400 per kWh installed, with 300 cycles a year at a €60 per MWh spread.</li>
         <li>Load management costs €40k per plant plus €10k per MW of peak; the shifting software €60k.</li>
-        <li>Typical ranges: price from BDEW 2026 averages by consumption size; peak from typical operating hours of the plant type; electricity use and flexible share are rough estimates from public energy guides (cooling is about 40% of brewery electricity, around 50% in meat processing).</li>
+        <li>Typical ranges: price from BDEW 2026 averages by consumption size; peak from typical operating hours of the plant type; electricity use and flexible share are rough estimates from public energy guides (cooling is about 40% of brewery electricity, about 25% in dairies and around 50% in meat processing; breweries use about 8–14 kWh of electricity per hectolitre).</li>
         <li>Data centers: cooling and flexible AI workloads form the flexible share; efficiency saves 8% of it plus 1% of the rest; 15% of it shifts; load management caps at most 4% of the peak; the battery covers 20% of the peak.</li>
-        <li>CO₂ at 0.36 t per MWh of electricity saved. The curve is a modelled working day of a food plant, scaled to your values.</li>
+        <li>CO₂ at 0.34 t per MWh of electricity saved (German grid mix 2025, UBA). The curve is a modelled working day of a food plant, scaled to your values.</li>
       </ul>
     </details>
   </main>
 
+  <dialog class="scan" id="scan-dlg" aria-labelledby="dlg-h">
+    <h2 id="dlg-h">Want your exact numbers?</h2>
+    <p>This is a first estimate from typical values: <b id="dlg-range">€0.7–1.1m</b> a year. An on-site scan measures your plant and ranks every measure with its exact savings and payback, within 10 days.</p>
+    <div class="dlg-act">
+      <button type="button" class="cta-btn" id="dlg-go">Talk to us about a scan</button>
+      <button type="button" class="ghost" id="dlg-close">Keep exploring</button>
+    </div>
+  </dialog>
   <footer>Concept demo by Laurens Dornoff for the ONE Energy Management case, built with AI. Illustrative assumptions, not an official Siemens tool.</footer>
 </div>
 
@@ -348,18 +379,18 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 (function () {
   "use strict";
   var A = {
-    demandCharge: 100, spread: 45, shiftShare: 0.25, effFlex: 0.10, effBase: 0.02,
+    demandCharge: 130, spread: 45, shiftShare: 0.25, effFlex: 0.10, effBase: 0.02,
     lmPerFlex: 0.4, lmCap: 0.15, lmFix: 40000, lmPerMW: 10000, shiftCapex: 60000,
-    effCapexPerMWh: 450, batShare: 0.15, batHours: 2, batCapexPerMWh: 350000,
-    batCycles: 300, batSpread: 60, batEff: 0.88, co2: 0.36, hurdle: 3, payMax: 6
+    effCapexPerMWh: 450, batShare: 0.15, batHours: 2, batCapexPerMWh: 400000,
+    batCycles: 300, batSpread: 60, batEff: 0.88, co2: 0.34, hurdle: 3, payMax: 6
   };
   var ARCH = {
-    brewery: { name: "breweries", v: { gwh: 20, peak: 4.5, flex: 35, price: 16.5, plants: 8 }, gwh: [5, 40], lf: [0.45, 0.6], flex: [30, 45] },
+    brewery: { name: "breweries", v: { gwh: 15, peak: 3.4, flex: 35, price: 17, plants: 8 }, gwh: [3, 40], lf: [0.45, 0.6], flex: [30, 45] },
     dairy: { name: "dairies", v: { gwh: 40, peak: 7, flex: 30, price: 16, plants: 5 }, gwh: [10, 80], lf: [0.55, 0.7], flex: [25, 40] },
     meat: { name: "meat plants", v: { gwh: 15, peak: 3.2, flex: 50, price: 17, plants: 6 }, gwh: [5, 40], lf: [0.5, 0.65], flex: [40, 60] },
     dc: { name: "data centers", dc: true, v: { gwh: 100, peak: 14, flex: 25, price: 15, plants: 6 }, gwh: [40, 250], lf: [0.75, 0.9], flex: [15, 35] }
   };
-  var arch = "brewery";
+  var arch = "dc";
   var ids = ["gwh", "peak", "flex", "price", "plants"];
   function el(id) { return document.getElementById(id); }
   var reduce = false;
@@ -576,11 +607,11 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     var h3 = document.createElement("h3"); h3.textContent = m.title;
     var p = document.createElement("p"); p.textContent = m.text;
     main.appendChild(h3); main.appendChild(p);
-    var save = document.createElement("span"); save.className = "m-save num"; save.textContent = eur(m.save);
+    var save = document.createElement("span"); save.className = "m-save num"; save.textContent = "€ ••k";
     var small = document.createElement("small"); small.textContent = "a year"; save.appendChild(small);
     var pay = document.createElement("div"); pay.className = "m-pay";
     var pv = document.createElement("span"); pv.className = "pv num";
-    pv.textContent = eur(m.capex) + " to invest, paid back in " + years(m.pay);
+    pv.textContent = "€ •••k to invest, paid back in •.• years";
     var bar = document.createElement("div"); bar.className = "bar"; bar.setAttribute("aria-hidden", "true");
     var fill = document.createElement("span"); fill.className = "fill" + (slow ? " slow" : ""); fill.style.width = w.toFixed(1) + "%";
     var hurdle = document.createElement("span"); hurdle.className = "hurdle";
@@ -684,6 +715,32 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       i.gwh + " GWh, " + i.peak.toFixed(1) + " MW, " + i.flex + "% flexible, " + i.plants + (ARCH[arch].dc ? " site" : " plant") + (i.plants === 1 ? "" : "s") +
       ") and books a call with the energy team about an on-site scan.";
     n.hidden = false;
+  });
+  /* Scan prompt: on demand from the locked list, and once on its own after some exploring */
+  var dlg = el("scan-dlg"), shown = false, moves = 0, timer = null;
+  function openDlg() {
+    el("dlg-range").textContent = el("r-save").textContent;
+    shown = true;
+    if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
+  }
+  function closeDlg() { if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
+  function autoPrompt() { if (!shown) openDlg(); }
+  try { shown = sessionStorage.getItem("scanPrompt") === "1"; } catch (e) {}
+  function markShown() { try { sessionStorage.setItem("scanPrompt", "1"); } catch (e) {} }
+  ids.forEach(function (id) {
+    el(id).addEventListener("change", function () {
+      moves++;
+      if (!timer && !shown) timer = setTimeout(function () { autoPrompt(); markShown(); }, 20000);
+      if (moves >= 4 && !shown) { clearTimeout(timer); autoPrompt(); markShown(); }
+    });
+  });
+  el("lock-btn").addEventListener("click", openDlg);
+  el("dlg-close").addEventListener("click", closeDlg);
+  dlg.addEventListener("click", function (e) { if (e.target === dlg) closeDlg(); });
+  el("dlg-go").addEventListener("click", function () {
+    closeDlg();
+    el("cta-btn").click();
+    el("cta-h").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   });
   render();
 })();
