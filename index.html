@@ -398,7 +398,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         <fieldset class="lead-contact">
           <legend>Your contact details</legend>
           <label class="lf"><span>Name</span><input type="text" id="f-name" autocomplete="name" required aria-describedby="e-name"><em class="err" id="e-name" hidden></em></label>
-          <label class="lf"><span>Email</span><input type="email" id="f-mail" autocomplete="email" inputmode="email" required aria-describedby="e-mail"><em class="err" id="e-mail" hidden></em></label>
+          <label class="lf"><span>Work email</span><input type="email" id="f-mail" autocomplete="email" inputmode="email" required aria-describedby="e-mail"><em class="err" id="e-mail" hidden></em></label>
           <label class="lf"><span>Company</span><input type="text" id="f-co" autocomplete="organization" required aria-describedby="e-co"><em class="err" id="e-co" hidden></em></label>
           <label class="lf"><span>Position <i>optional</i></span><input type="text" id="f-pos" autocomplete="organization-title"></label>
           <label class="lf"><span>Industry <i>optional</i></span>
@@ -839,6 +839,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
   /* Lead form in the call-to-action box: values mirror the sliders, contact details are checked before "sending" */
   var cta = el("cta"), lead = el("lead"), done = el("lead-done");
+  var FREE = /@(gmail|googlemail|gmx|web|outlook|hotmail|live|msn|yahoo|ymail|icloud|me|mac|aol|t-online|freenet|proton|protonmail|mail|posteo|online|arcor|bluewin)\.[a-z.]+$/i;
   var FIELD_MAP = { "f-gwh": "gwh", "f-peak": "peak", "f-flex": "flex", "f-price": "price", "f-plants": "plants" };
   var formOther = false;
   function syncForm(i, force) {
@@ -885,6 +886,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     ["f-name", "f-mail", "f-co", "f-tel"].forEach(function (id, n) { clearErr(id, ["e-name", "e-mail", "e-co", "e-tel"][n]); });
     if (name.length < 2) { fail("f-name", "e-name", "Please enter your name."); bad.push("f-name"); }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { fail("f-mail", "e-mail", "Please enter a valid email address."); bad.push("f-mail"); }
+    else if (FREE.test(mail)) { fail("f-mail", "e-mail", "Please use your work email address."); bad.push("f-mail"); }
     if (co.length < 2) { fail("f-co", "e-co", "Please enter your company."); bad.push("f-co"); }
     if (tel && !/^[+()\d][\d\s()\/.-]{5,}$/.test(tel)) { fail("f-tel", "e-tel", "Please check the phone number."); bad.push("f-tel"); }
     if (bad.length) { el(bad[0]).focus(); return; }
