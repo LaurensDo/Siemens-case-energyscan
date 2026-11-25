@@ -129,6 +129,10 @@ button, input { font: inherit; color: inherit; }
 }
 .presets button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .field { display: grid; gap: 4px; }
+.group-block { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 4px; }
+.group-block h3 { font-size: 15px; font-weight: 700; }
+.group-block .hint { margin-top: 0; }
+.g-l .use { margin-top: 4px; }
 .field-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .field label { font-size: 14px; font-weight: 600; }
 .field label small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
@@ -256,7 +260,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     </div>
     <span class="pill">Concept demo</span>
   </header>
-  <p class="lede">Five numbers about your plant give a first estimate of what energy measures are worth, what to do first and how much grid capacity they free. An on-site scan with your own data turns the range into exact numbers.</p>
+  <p class="lede">Four numbers about your plant and one about your group give a first estimate of what energy measures are worth, what to do first and how much grid capacity they free. An on-site scan with your own data turns the range into exact numbers.</p>
 
   <main class="grid">
     <section class="headline" aria-live="polite">
@@ -265,7 +269,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     </section>
 
     <section class="inputs" aria-labelledby="in-h">
-      <h2 id="in-h">Your plant</h2>
+      <h2 id="in-h">Your site</h2>
       <p class="hint">Pick the closest plant type, then adjust. The blue band under each value shows what is typical for it.</p>
       <div class="presets" role="group" aria-label="Plant type">
         <button type="button" data-preset="dc" aria-pressed="true">Data center</button>
@@ -290,8 +294,12 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
         <div class="field-top"><label for="price">Electricity price<small>average, all in</small></label><output id="price-out" for="price" class="num">15.0 ct per kWh</output></div>
         <input type="range" id="price" min="8" max="35" step="0.5" value="15">
       </div>
+      <div class="group-block">
+        <h3 id="grp-h">Your portfolio</h3>
+        <p class="hint" id="grp-hint">How many similar sites could follow the same plan? This sets the group potential further down.</p>
+      </div>
       <div class="field">
-        <div class="field-top"><label for="plants" id="plants-label">Similar plants in the group</label><output id="plants-out" for="plants" class="num">6 sites</output></div>
+        <div class="field-top"><label for="plants" id="plants-label">Similar sites<small>including this one</small></label><output id="plants-out" for="plants" class="num">6 sites</output></div>
         <input type="range" id="plants" min="1" max="60" step="1" value="6">
       </div>
     </section>
@@ -327,7 +335,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
     <section class="scale" aria-label="Group potential">
       <p class="g-big num" id="g-save">€4.4–7.4m</p>
-      <p class="g-l" id="g-text">a year if all 8 plants in the group follow the same plan. Same scan, same offer, every plant.</p>
+      <div class="g-l"><p id="g-text">a year if all 6 sites in the portfolio follow the same plan. Same scan, same offer, every site.</p><button type="button" class="use" id="g-change">Change number of sites</button></div>
     </section>
 
     <section class="next" aria-labelledby="nx-h">
@@ -589,7 +597,13 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
   function read() {
     var o = {};
-    ids.forEach(function (id) { o[id] = parseFloat(el(id).value); });
+    el("g-change").addEventListener("click", function () {
+    var f = el("plants");
+    f.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    setTimeout(function () { f.focus({ preventScroll: true }); }, 350);
+  });
+
+  ids.forEach(function (id) { o[id] = parseFloat(el(id).value); });
     return o;
   }
   function paintTracks() {
@@ -677,7 +691,11 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("price-out").textContent = i.price.toFixed(1) + " ct per kWh";
     var dc = !!ARCH[arch].dc, unit = dc ? "site" : "plant";
     el("plants-out").textContent = i.plants + " " + unit + (i.plants === 1 ? "" : "s");
-    el("plants-label").textContent = dc ? "Similar sites in the portfolio" : "Similar plants in the group";
+    el("plants-label").firstChild.textContent = dc ? "Similar sites" : "Similar plants";
+    el("in-h").textContent = dc ? "Your site" : "Your plant";
+    el("grp-h").textContent = dc ? "Your portfolio" : "Your group";
+    el("grp-hint").textContent = "How many similar " + unit + "s could follow the same plan? This sets the group potential further down.";
+    el("g-change").textContent = "Change number of " + unit + "s";
     el("flex-hint").textContent = dc ? "cooling, flexible AI workloads" : "cooling, compressed air, cleaning";
     el("r-unit").textContent = "potential a year at this " + unit;
     el("k-mw-l").textContent = dc ? "grid capacity freed for new IT load" : "grid capacity freed for electrification";
@@ -689,7 +707,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("k-co2").textContent = Math.round(r.co2).toLocaleString("en-US") + " t";
     el("g-save").textContent = eurRange(r.group);
     el("g-text").textContent = i.plants > 1
-      ? "a year if all " + i.plants + " " + unit + "s follow the same plan. Same scan, same offer, every " + unit + "."
+      ? "a year if all " + i.plants + " " + unit + "s " + (dc ? "in the portfolio" : "in the group") + " follow the same plan. Same scan, same offer, every " + unit + "."
       : "a year for this one " + unit + ". Add the similar " + unit + "s to see the same plan at scale.";
     var list = el("measures");
     while (list.firstChild) list.removeChild(list.firstChild);
