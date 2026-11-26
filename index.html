@@ -80,6 +80,7 @@ button, input { font: inherit; color: inherit; }
     grid-template-areas:
       "inputs headline"
       "inputs kpis"
+      "inputs eff"
       "inputs curve"
       "inputs rank"
       "inputs scale"
@@ -92,6 +93,7 @@ button, input { font: inherit; color: inherit; }
   .inputs { grid-area: inputs; position: sticky; top: 16px; }
   .headline { grid-area: headline; }
   .kpis { grid-area: kpis; }
+  .eff { grid-area: eff; }
   .curve { grid-area: curve; }
   .rank { grid-area: rank; }
   .scale { grid-area: scale; }
@@ -110,13 +112,22 @@ button, input { font: inherit; color: inherit; }
 .sub { color: var(--muted); margin-top: 4px; font-size: 15px; }
 
 /* KPI strip */
-.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 .kpi { padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
 .kpi + .kpi { border-left: 1px solid var(--line); }
 .kpi .v { font-size: clamp(17px, 4.6vw, 22px); font-weight: 700; font-variation-settings: "wdth" 112; line-height: 1.2; }
 .kpi .l { font-size: 13px; color: var(--muted); line-height: 1.35; }
 .kpi.free .v { color: var(--flex); }
 @media (max-width: 420px) { .kpi { padding: 10px; } }
+
+/* Efficiency on top: a separate lever with its own effect (less energy), so it sits outside the curve */
+.eff { border: 1px dashed var(--line-strong, var(--muted)); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; }
+.eff-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.eff-v { font-size: clamp(20px, 5.4vw, 26px); font-weight: 700; font-variation-settings: "wdth" 112; line-height: 1.15; }
+.eff-l { font-size: 14px; color: var(--muted); }
+.eff-ex { font-size: 14px; display: grid; gap: 4px; padding-left: 18px; }
+.eff-ex li::marker { color: var(--muted); }
+.eff-foot { font-size: 13px; color: var(--muted); }
 
 /* Inputs */
 .inputs { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 16px; display: grid; gap: 16px; }
@@ -334,9 +345,14 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     </section>
 
     <section class="kpis" aria-label="Key results">
-      <div class="kpi"><span class="v num" id="k-pay">3.1 years</span><span class="l">payback for all four measures</span></div>
+      <div class="kpi"><span class="v num" id="k-pay">3.1 years</span><span class="l">payback for all three measures</span></div>
       <div class="kpi free"><span class="v num" id="k-mw">2.4 MW</span><span class="l" id="k-mw-l">grid capacity freed for electrification</span></div>
-      <div class="kpi"><span class="v num" id="k-co2">1,020 t</span><span class="l">less CO₂ a year</span></div>
+    </section>
+
+    <section class="eff" aria-labelledby="eff-h">
+      <div class="eff-top"><span class="eff-v num" id="e-save">+ €330–540k</span><span class="eff-l" id="eff-h">a year on top from efficiency, estimated from benchmarks</span></div>
+      <ul class="eff-ex" id="e-ex"></ul>
+      <p class="eff-foot" id="e-foot">Uses less energy and cuts about 1,020 t of CO₂ a year. Not in the curve, because it lowers the use rather than moving it.</p>
     </section>
 
     <figure class="curve">
@@ -432,12 +448,12 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       <ul>
         <li>Demand charge €130 per kW and year (2026 medium-voltage grid fees in Germany, mostly €100–200). Load management cuts the peak by 40% of the flexible share, at most 15%.</li>
         <li>Load shifting moves 25% of the flexible energy to cheaper quarter hours at a €45 per MWh spread. It needs a dynamic power contract.</li>
-        <li>Efficiency saves 10% of the flexible load plus 2% of the rest, at €450 invested per MWh saved each year.</li>
+        <li>Efficiency is shown on top, as a benchmark estimate: it saves 10% of the flexible load plus 2% of the rest. It lowers energy use and CO₂, not the shape of the curve, so it is not in the curve or in the ranked measures.</li>
         <li>The battery covers 15% of the peak for two hours at €400 per kWh installed, with 300 cycles a year at a €60 per MWh spread.</li>
         <li>Load management costs €40k per plant plus €10k per MW of peak; the shifting software €60k.</li>
         <li>Each plant type starts at the middle of its typical range. The ranges describe mid-size sites in Germany, Austria and Switzerland and leave out the smallest and the largest, roughly the middle two thirds. Electricity price comes from BDEW 2026 averages by consumption size; peak load from typical operating hours of the type; electricity use and flexible share are modelling assumptions built on public data (Germany has about 2,000 data centers above 100 kW and about 100 above 5 MW; a dairy processes about 250,000 tonnes of milk a year on average; cooling is about 40% of brewery electricity, about 25% in dairies and around 50% in meat processing; breweries use about 8–14 kWh per hectolitre). Peak load and price ranges move with your electricity use, because both depend on site size. The slider scales also follow the plant type and are set so that the typical peak load fits even at the top of the electricity scale; the top end of each scale stands for that value or more and is shown with a "+", and the demo calculates with the top value.</li>
         <li>Data centers: cooling and flexible AI workloads form the flexible share; efficiency saves 8% of it plus 1% of the rest; 15% of it shifts; load management caps at most 4% of the peak; the battery covers 20% of the peak.</li>
-        <li>CO₂ at 0.34 t per MWh of electricity saved (German grid mix 2025, UBA). The curve is a modelled working day of a food plant, scaled to your values.</li>
+        <li>CO₂ at 0.34 t per MWh of electricity saved (German grid mix 2025, UBA). The curve is an illustrative working day of the chosen plant type, scaled to your values; it shows load shifting, peak capping and the battery.</li>
       </ul>
     </details>
   </main>
@@ -522,6 +538,12 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       bat: ["Add a battery", "Frees grid capacity for new IT load and earns on price spreads.", "Storage (Fluence) with Siemens Financial Services"]
     }
   };
+  var EFF_EX = {
+    brewery: ["Fix compressed-air leaks and lower the network pressure", "Raise glycol cooling setpoints where the process allows"],
+    dairy: ["Tune ammonia refrigeration setpoints and condenser pressure", "Variable-speed drives on pumps and fans"],
+    meat: ["Tune cold-store and freezer setpoints and defrost cycles", "Fix compressed-air leaks and lower the network pressure"],
+    dc: ["Raise the supply-air temperature and use more free-cooling hours", "Contain hot and cold aisles to cut fan and chiller load"]
+  };
   function model(i) {
     var isDc = !!ARCH[arch].dc, P = {}, key;
     for (key in A) P[key] = A[key];
@@ -532,12 +554,11 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     var shiftMWh = mwh * f * P.shiftShare;
     var effMWh = mwh * (P.effFlex * f + P.effBase);
     /* peak can only fall to about the average load: the rest of the day still has to be served */
-    var head = Math.max(i.peak - 1.05 * (mwh / 8760) * (1 - effMWh / mwh), 0);
+    var head = Math.max(i.peak - 1.05 * (mwh / 8760), 0);
     lmMW = Math.min(lmMW, head);
     var batMW = Math.min(P.batShare * i.peak, Math.max(head - lmMW, 0)), batMWh = batMW * P.batHours;
     var mk = function (t, save, capex) { return { title: t[0], text: t[1], block: t[2], save: save, capex: capex }; };
     var list = [
-      mk(T.eff, effMWh * pMWh, effMWh * P.effCapexPerMWh),
       mk(T.shift, shiftMWh * P.spread, P.shiftCapex),
       mk(T.lm, lmMW * 1000 * P.demandCharge, P.lmFix + P.lmPerMW * i.peak),
       mk(T.bat, batMW * 1000 * P.demandCharge + batMWh * P.batCycles * P.batSpread * P.batEff, batMWh * P.batCapexPerMWh)
@@ -548,8 +569,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     list.forEach(function (x) { save += x.save; capex += x.capex; });
     return {
       bill: bill, save: save, capex: capex, pay: capex / Math.max(save, 1), share: save / Math.max(bill, 1),
-      freedMW: lmMW + batMW, measures: list, effShare: effMWh / mwh, shiftMWh: shiftMWh,
-      group: save * i.plants, co2: effMWh * P.co2
+      freedMW: lmMW + batMW, measures: list, shiftMWh: shiftMWh,
+      group: save * i.plants, effSave: effMWh * pMWh, co2: effMWh * P.co2
     };
   }
 
@@ -590,7 +611,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     else if (lf <= meanPow(hi)) k = hi;
     else { for (it = 0; it < 40; it++) { k = (lo + hi) / 2; if (meanPow(k) > lf) lo = k; else hi = k; } }
     var before = shape().map(function (s) { return i.peak * Math.pow(s, k); });
-    var x = before.map(function (v) { return v * (1 - r.effShare); });
+    var x = before.slice();
     var dailyShift = r.shiftMWh / 365, dSum = 0;
     for (q = 0; q < 96; q++) if (isDay(q)) dSum += x[q] * 0.25;
     var ratio = dSum > 0 ? Math.min(dailyShift / dSum, 0.5) : 0;
@@ -800,10 +821,15 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("lg-after").hidden = c.over; el("lg-cap").hidden = c.over; el("lg-avg").hidden = !c.over;
     el("curve-src").textContent = "Illustrative: typical working day of a " + ARCH[arch].label + ", scaled to your inputs. The scan uses your own 15-minute data.";
     el("r-save").textContent = eurRange(r.save);
-    el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, estimated from typical values";
+    el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, from load shifting, peak capping and a battery";
     el("k-pay").textContent = years(r.pay);
     el("k-mw").textContent = r.freedMW.toFixed(1) + " MW";
-    el("k-co2").textContent = Math.round(r.co2).toLocaleString("en-US") + " t";
+    el("e-save").textContent = "+ " + eurRange(r.effSave);
+    var ex = el("e-ex");
+    while (ex.firstChild) ex.removeChild(ex.firstChild);
+    EFF_EX[arch].forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ex.appendChild(li); });
+    el("e-foot").textContent = "Uses less energy and cuts about " + Math.round(r.co2).toLocaleString("en-US") +
+      " t of CO₂ a year. Not in the curve, because it lowers the use rather than moving it.";
     el("g-save").textContent = eurRange(r.group);
     el("g-text").textContent = i.plants > 1
       ? "a year if all " + i.plants + " " + unit + "s " + (dc ? "in the portfolio" : "in the group") + " follow the same plan. Same scan, same offer, every " + unit + "."
