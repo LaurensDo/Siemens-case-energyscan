@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#F2F4F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0C141E" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#000028" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000028" media="(prefers-color-scheme: dark)">
 <title>Energy Opportunity Scan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,32 +13,40 @@
 :root {
   /* Phones: result, inputs, KPIs, curve, ranking in one column with the result pinned on top.
      From 900px: inputs sticky in a left column, results on the right. */
-  --bg: #F2F4F7;
+  /* Siemens palette, as in the case deck: deep blue 000028, petrol 00D7B9 (on dark) and a darker petrol for text on white */
+  --bg: #F3F5F8;
   --surface: #FFFFFF;
-  --ink: #132033;
-  --muted: #586579;
-  --line: #D6DCE4;
-  --peak: #C06A1C;
-  --peak-text: #A0540F;
-  --flex: #2A52C4;
-  --flex-soft: #DCE4FA;
-  --band: #B7C6F2;
-  --shadow: rgba(19, 32, 51, 0.18);
+  --ink: #000028;
+  --muted: #4E5B73;
+  --line: #D5DCE5;
+  --peak: #D07A14;
+  --peak-text: #9A5408;
+  --flex: #007C73;
+  --flex-soft: #D2F4EE;
+  --band: #8EDFD2;
+  --deep: #000028;
+  --deep-2: #0F1E46;
+  --petrol: #00D7B9;
+  --on-deep: #FFFFFF;
+  --on-deep-muted: #A9B7CC;
+  --shadow: rgba(0, 0, 40, 0.18);
   --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0C141E;
-    --surface: #132030;
-    --ink: #E6ECF3;
-    --muted: #97A4B5;
-    --line: #26364B;
-    --peak: #F0A24A;
-    --peak-text: #F0A24A;
-    --flex: #7F9DF8;
-    --flex-soft: #1B2A4E;
-    --band: #3D5899;
+    --bg: #000028;
+    --surface: #0F1E46;
+    --ink: #FFFFFF;
+    --muted: #A9B7CC;
+    --line: #23315A;
+    --peak: #F0A23B;
+    --peak-text: #F0A23B;
+    --flex: #00D7B9;
+    --flex-soft: #0B3C4E;
+    --band: #00A096;
+    --deep: #0F1E46;
+    --deep-2: #1E2A50;
     --shadow: rgba(0, 0, 0, 0.5);
     color-scheme: dark;
   }
@@ -66,11 +74,12 @@ button, input { font: inherit; color: inherit; }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand svg { width: 34px; height: 22px; flex: none; }
-.brand .b1 { fill: none; stroke: var(--peak); stroke-width: 2; stroke-linejoin: round; }
-.brand .b2 { stroke: var(--flex); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.brand .b1 { fill: none; stroke: #F0A23B; stroke-width: 2; stroke-linejoin: round; }
+.brand .b2 { stroke: var(--petrol); stroke-width: 1.5; stroke-dasharray: 3 2; }
 .brand h1 { font-size: 21px; font-weight: 700; font-variation-settings: "wdth" 115; letter-spacing: -0.01em; }
-.pill { font-size: 13px; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; }
-.lede { color: var(--muted); max-width: 60ch; margin-top: -8px; }
+.pill { font-size: 13px; font-weight: 600; color: var(--petrol); border: 1px solid color-mix(in srgb, var(--petrol) 55%, transparent); border-radius: 999px; padding: 3px 11px; }
+.lede { color: var(--on-deep-muted); max-width: 60ch; }
+.hero { background: var(--deep); color: var(--on-deep); border-radius: 14px; padding: 18px 18px 20px; display: grid; gap: 12px; border-bottom: 3px solid var(--petrol); }
 
 /* Grid */
 .grid { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
@@ -103,7 +112,10 @@ button, input { font: inherit; color: inherit; }
 }
 
 /* Result, pinned on phones so the number stays in view while sliding */
-.headline { background: var(--bg); padding: 4px 0 10px; border-bottom: 1px solid var(--line); }
+.headline { background: var(--deep); color: var(--on-deep); padding: 14px 16px 14px; border-radius: 12px; }
+.headline .big { color: var(--petrol); }
+.headline .big .unit { color: var(--on-deep-muted); }
+.headline .sub { color: var(--on-deep-muted); }
 @media (max-width: 899px) {
   .headline { position: sticky; top: 0; z-index: 5; padding-top: 10px; }
 }
@@ -141,7 +153,8 @@ button, input { font: inherit; color: inherit; }
   border: 1px solid var(--line); background: transparent; border-radius: 8px;
   padding: 6px 12px; font-size: 14px; font-weight: 600; cursor: pointer;
 }
-.presets button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.presets button[aria-pressed="true"] { background: var(--deep); color: var(--petrol); border-color: var(--deep); }
+@media (prefers-color-scheme: dark) { .presets button[aria-pressed="true"] { background: var(--petrol); color: #000028; border-color: var(--petrol); } }
 .field { display: grid; gap: 4px; }
 .group-block { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 4px; }
 .group-block h3 { font-size: 15px; font-weight: 700; }
@@ -237,15 +250,16 @@ input[type="range"]:focus-visible { outline-offset: 3px; }
 @media (max-width: 620px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Call to action: the button opens a short form with the values above */
-.cta { background: var(--ink); color: var(--bg); border-radius: 12px; padding: 20px 18px; display: grid; gap: 14px; scroll-margin-top: 12px; }
+.cta { background: var(--deep); color: var(--on-deep); border-bottom: 3px solid var(--petrol); border-radius: 12px; padding: 20px 18px; display: grid; gap: 14px; scroll-margin-top: 12px; }
 @media (max-width: 899px) { .cta { scroll-margin-top: 130px; } }
 .cta h2 { font-size: 20px; font-weight: 700; font-variation-settings: "wdth" 112; }
 .cta p { font-size: 14.5px; opacity: 0.85; margin-top: 4px; max-width: 56ch; }
-.cta-btn { justify-self: start; border: 0; border-radius: 8px; padding: 11px 18px; font-size: 15px; font-weight: 700; background: var(--flex); color: var(--surface); cursor: pointer; font-family: inherit; }
-.cta-btn:focus-visible { outline-color: var(--bg); }
+.cta-btn { justify-self: start; border: 0; border-radius: 8px; padding: 11px 18px; font-size: 15px; font-weight: 700; background: var(--petrol); color: #000028; cursor: pointer; font-family: inherit; }
+.cta-btn:focus-visible { outline-color: var(--ink); }
+.cta .cta-btn:focus-visible { outline-color: var(--on-deep); }
 @media (min-width: 620px) { .cta { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } .cta.open { grid-template-columns: minmax(0, 1fr); } }
 .cta.open #cta-btn, .cta.open .cta-intro p { display: none; }
-.cta :focus-visible { outline-color: var(--bg); }
+.cta :focus-visible { outline-color: var(--on-deep); }
 .lead { display: grid; gap: 16px; }
 .lead[hidden], .lead-done[hidden] { display: none; }
 .lead fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 12px 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -263,7 +277,7 @@ input[type="range"]:focus-visible { outline-offset: 3px; }
 .lead-note { font-size: 13px; opacity: 0.7; margin: 0; }
 .lead-done { display: grid; gap: 8px; justify-items: start; border-left: 2px solid var(--flex); padding-left: 14px; }
 .lead-done h3 { font-size: 18px; font-weight: 700; }
-.ghost.light { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 40%, transparent); margin-top: 6px; }
+.ghost.light { color: var(--on-deep); border-color: color-mix(in srgb, var(--on-deep) 40%, transparent); margin-top: 6px; }
 @media (min-width: 620px) {
   .lead-vals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .lead-contact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -284,7 +298,7 @@ input[type="range"]:focus-visible { outline-offset: 3px; }
 
 /* Scan prompt */
 dialog.scan { border: 0; border-radius: 14px; padding: 24px 22px 20px; max-width: min(440px, calc(100vw - 32px)); background: var(--surface); color: var(--ink); box-shadow: 0 18px 50px var(--shadow); }
-dialog.scan::backdrop { background: rgba(12, 20, 30, 0.55); }
+dialog.scan::backdrop { background: rgba(0, 0, 40, 0.6); }
 dialog.scan h2 { font-size: 21px; font-weight: 750; font-variation-settings: "wdth" 112; margin-bottom: 8px; }
 dialog.scan p { font-size: 15px; color: var(--muted); }
 dialog.scan p b { color: var(--ink); }
@@ -296,6 +310,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 </head>
 <body>
 <div class="wrap">
+  <div class="hero">
   <header class="top">
     <div class="brand">
       <svg viewBox="0 0 34 22" aria-hidden="true"><path class="b1" d="M1 17 L7 15 L11 6 L15 9 L20 4 L24 12 L29 13 L33 16"/><path class="b2" d="M1 9 H33"/></svg>
@@ -304,6 +319,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     <span class="pill">Concept demo</span>
   </header>
   <p class="lede">Four numbers about your plant and one about your group give a first estimate of what energy measures are worth, what to do first and how much grid capacity they free. An on-site scan with your own data turns the range into exact numbers.</p>
+  </div>
 
   <main class="grid">
     <section class="headline" aria-live="polite">
@@ -313,7 +329,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
     <section class="inputs" aria-labelledby="in-h">
       <h2 id="in-h">Your site</h2>
-      <p class="hint">Pick the closest plant type, then adjust. The blue band under each value shows what is typical for it.</p>
+      <p class="hint">Pick the closest plant type, then adjust. The shaded band under each value shows what is typical for it.</p>
       <div class="presets" role="group" aria-label="Plant type">
         <button type="button" data-preset="dc" aria-pressed="true">Data center</button>
         <button type="button" data-preset="brewery" aria-pressed="false">Brewery</button>
