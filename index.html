@@ -324,7 +324,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       <div class="field">
         <div class="field-top"><label for="peak">Peak load<small>highest quarter hour of the year</small></label><output id="peak-out" for="peak" class="num">13.9 MW</output></div>
         <input type="range" id="peak" min="1" max="50" step="0.1" value="13.9">
-        <p class="warn" id="warn" hidden>This much electricity does not fit under this peak. Raise the peak load or lower the yearly use.</p>
+        <p class="warn" id="warn" hidden></p>
       </div>
       <div class="field">
         <div class="field-top"><label for="flex">Flexible load<small id="flex-hint">cooling, compressed air, cleaning</small></label><output id="flex-out" for="flex" class="num">25% of load</output></div>
@@ -799,8 +799,16 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     });
   }
 
+  /* The peak can never sit below the average load. If the inputs push it there, the peak rises to the
+     lowest typical value for this plant type (average load divided by the highest typical load factor). */
+  function minPeak(gwh) {
+    var st = parseFloat(el("peak").step);
+    return Math.ceil((gwh * 1000 / 8760) / ARCH[arch].lf[1] / st - 1e-9) * st;
+  }
   function render() {
-    var i = read(), r = model(i), c = curves(i, r);
+    var i = read(), need = minPeak(i.gwh);
+    if (i.peak < need) { el("peak").value = Math.min(need, parseFloat(el("peak").max)).toFixed(1); i = read(); }
+    var r = model(i), c = curves(i, r);
     paintTracks();
     paintBench(i);
     el("gwh-out").textContent = i.gwh + plus("gwh") + " GWh a year";
@@ -817,7 +825,10 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("flex-hint").textContent = dc ? "cooling, flexible AI workloads" : "cooling, compressed air, cleaning";
     el("r-unit").textContent = "potential a year at this " + unit;
     el("k-mw-l").textContent = dc ? "grid capacity freed for new IT load" : "grid capacity freed for electrification";
-    el("warn").hidden = !c.over;
+    var raised = i.peak <= need + 0.05;
+    el("warn").hidden = !raised;
+    if (raised) el("warn").textContent = "Raised to " + i.peak.toFixed(1) + " MW: " + i.gwh + plus("gwh") +
+      " GWh a year means an average load of " + (i.gwh * 1000 / 8760).toFixed(1) + " MW, and a " + ARCH[arch].label + " needs at least this peak.";
     el("lg-after").hidden = c.over; el("lg-cap").hidden = c.over; el("lg-avg").hidden = !c.over;
     el("curve-src").textContent = "Illustrative: typical working day of a " + ARCH[arch].label + ", scaled to your inputs. The scan uses your own 15-minute data.";
     el("r-save").textContent = eurRange(r.save);
