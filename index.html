@@ -172,6 +172,9 @@ input[type="range"]:focus-visible { outline-offset: 3px; }
 #chart .after { fill: var(--flex-soft); stroke: var(--flex); stroke-width: 1.75; stroke-linejoin: round; }
 #chart .cap { stroke: var(--flex); stroke-width: 1.5; stroke-dasharray: 5 4; }
 #chart .peak-dot { fill: var(--peak); }
+#chart .avg { stroke: var(--peak); stroke-width: 2; stroke-dasharray: 6 4; }
+#chart .gap { fill: url(#hatch); }
+#chart .hatch-l { stroke: var(--peak); stroke-width: 1.5; opacity: 0.55; }
 #chart .lab-peak { fill: var(--peak-text); font-size: 12.5px; font-weight: 700; font-family: var(--font); }
 #chart .lab-cap { fill: var(--flex); font-size: 12.5px; font-weight: 700; font-family: var(--font); }
 #chart .lab-peak, #chart .lab-cap { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
@@ -180,6 +183,8 @@ input[type="range"]:focus-visible { outline-offset: 3px; }
 .sw { width: 18px; height: 0; border-top: 2px solid var(--peak); display: inline-block; }
 .sw.after { height: 10px; border: 1.5px solid var(--flex); background: var(--flex-soft); border-radius: 2px; }
 .sw.cap { border-top: 2px dashed var(--flex); }
+.sw.avg { border-top: 2px dashed var(--peak); }
+.legend span[hidden] { display: none; }
 
 /* Ranking */
 .rank h2, .next h2 { font-size: 19px; font-weight: 700; font-variation-settings: "wdth" 112; margin-bottom: 4px; }
@@ -335,12 +340,13 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     </section>
 
     <figure class="curve">
-      <figcaption><span class="ttl">One working day, before and after</span><span class="src">Modelled 15-minute values</span></figcaption>
+      <figcaption><span class="ttl">One working day, before and after</span><span class="src" id="curve-src">Illustrative: typical working day of a dairy, scaled to your inputs. The scan uses your own 15-minute data.</span></figcaption>
       <svg id="chart" viewBox="0 0 640 270" role="img" aria-label="Load curve of one working day before and after the measures"></svg>
       <div class="legend">
         <span><i class="sw" aria-hidden="true"></i>Today</span>
-        <span><i class="sw after" aria-hidden="true"></i>After the measures</span>
-        <span><i class="sw cap" aria-hidden="true"></i>New peak</span>
+        <span id="lg-after"><i class="sw after" aria-hidden="true"></i>After the measures</span>
+        <span id="lg-cap"><i class="sw cap" aria-hidden="true"></i>New peak</span>
+        <span id="lg-avg" hidden><i class="sw avg" aria-hidden="true"></i>Average load from your yearly use</span>
       </div>
     </figure>
 
@@ -577,7 +583,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
   function isDay(q) { var h = q / 4; return h >= 7 && h < 22; }
 
   function curves(i, r) {
-    var lf = (i.gwh * 1000 / 8760) / i.peak, over = lf > 1, q, it;
+    var avg = i.gwh * 1000 / 8760, lf = avg / i.peak, over = lf > 1, q, it;
     lf = Math.min(lf, 0.95);
     var lo = 0.05, hi = 8, k;
     if (lf >= meanPow(lo)) k = lo;
@@ -599,7 +605,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       wts.push(w); wsum += w * 0.25;
     }
     if (wsum > 0) for (q = 0; q < 96; q++) if (wts[q] > 0) x[q] = Math.min(x[q] + add * wts[q] / wsum, cap);
-    return { before: before, after: x, cap: cap, over: over };
+    return { before: before, after: x, cap: cap, over: over, avg: avg };
   }
 
   /* Chart: the viewBox follows the rendered width, so text keeps its real size on phones */
@@ -624,10 +630,13 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     var X0 = narrow ? 34 : 44, X1 = W - 6, Y0 = 30, Y1 = H - 28;
     svg.setAttribute("viewBox", "0 0 " + W + " " + H);
     var peakNow = Math.max.apply(null, c.before);
-    var yMax = peakNow * 1.12, step = niceStep(yMax), top = Math.ceil(yMax / step - 1e-9) * step;
+    var yMax = Math.max(peakNow, c.over ? c.avg : 0) * 1.12, step = niceStep(yMax), top = Math.ceil(yMax / step - 1e-9) * step;
     var xs = function (q) { return X0 + (X1 - X0) * q / 95; };
     var ys = function (v) { return Y1 - (Y1 - Y0) * v / top; };
     while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var defs = node("defs", {}), pat = node("pattern", { id: "hatch", width: 7, height: 7, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+    pat.appendChild(node("line", { x1: 0, y1: 0, x2: 0, y2: 7, "class": "hatch-l" }));
+    defs.appendChild(pat); svg.appendChild(defs);
     for (var t = 0; t <= top + 1e-9; t += step) {
       svg.appendChild(node("line", { x1: X0, x2: X1, y1: ys(t), y2: ys(t), "class": "grid-l" }));
       svg.appendChild(node("text", { x: X0 - 8, y: ys(t) + 4, "text-anchor": "end", "class": "axis-t" }, tick(t, step)));
@@ -637,19 +646,31 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       var xx = X0 + (X1 - X0) * h / 24;
       svg.appendChild(node("text", { x: xx, y: H - 8, "text-anchor": h === 0 ? "start" : (h === 24 ? "end" : "middle"), "class": "axis-t" }, (h < 10 ? "0" : "") + h + ":00"));
     });
+    var qMax = 0;
+    c.before.forEach(function (v, q) { if (v > c.before[qMax]) qMax = q; });
+    var px = xs(qMax), py = ys(c.before[qMax]);
+    var anchor = px > X1 - 80 ? "end" : (px < X0 + 80 ? "start" : "middle");
+    var line = "";
+    c.before.forEach(function (v, q) { line += (q ? " L" : "M") + xs(q).toFixed(1) + " " + ys(v).toFixed(1); });
+    if (c.over) {
+      /* Inputs do not fit: the average from the yearly use lies above the peak, which no real load curve can do */
+      svg.appendChild(node("rect", { x: X0, y: ys(c.avg), width: X1 - X0, height: Math.max(ys(peakNow) - ys(c.avg), 0), "class": "gap" }));
+      svg.appendChild(node("path", { d: line, "class": "before" }));
+      svg.appendChild(node("line", { x1: X0, x2: X1, y1: ys(c.avg), y2: ys(c.avg), "class": "avg" }));
+      svg.appendChild(node("circle", { cx: px, cy: py, r: 4, "class": "peak-dot" }));
+      svg.appendChild(node("text", { x: X0 + 4, y: ys(c.avg) - 7, "text-anchor": "start", "class": "lab-peak" }, "Average load " + c.avg.toFixed(1) + " MW"));
+      svg.appendChild(node("text", { x: px, y: py + 18, "text-anchor": anchor, "class": "lab-peak" }, "Peak " + peakNow.toFixed(1) + " MW"));
+      svg.setAttribute("aria-label", "The inputs do not fit. The yearly use means an average load of " + c.avg.toFixed(1) +
+        " MW, above the peak load of " + peakNow.toFixed(1) + " MW.");
+      return;
+    }
     var area = "M" + xs(0).toFixed(1) + " " + ys(0).toFixed(1);
     c.after.forEach(function (v, q) { area += " L" + xs(q).toFixed(1) + " " + ys(v).toFixed(1); });
     area += " L" + xs(95).toFixed(1) + " " + ys(0).toFixed(1) + " Z";
     svg.appendChild(node("path", { d: area, "class": "after" }));
-    var line = "";
-    c.before.forEach(function (v, q) { line += (q ? " L" : "M") + xs(q).toFixed(1) + " " + ys(v).toFixed(1); });
     svg.appendChild(node("path", { d: line, "class": "before" }));
     svg.appendChild(node("line", { x1: X0, x2: X1, y1: ys(c.cap), y2: ys(c.cap), "class": "cap" }));
-    var qMax = 0;
-    c.before.forEach(function (v, q) { if (v > c.before[qMax]) qMax = q; });
-    var px = xs(qMax), py = ys(c.before[qMax]);
     svg.appendChild(node("circle", { cx: px, cy: py, r: 4, "class": "peak-dot" }));
-    var anchor = px > X1 - 80 ? "end" : (px < X0 + 80 ? "start" : "middle");
     svg.appendChild(node("text", { x: px, y: py - 10, "text-anchor": anchor, "class": "lab-peak" }, "Peak " + peakNow.toFixed(1) + " MW"));
     svg.appendChild(node("text", { x: X0 + 4, y: ys(c.cap) - 7, "text-anchor": "start", "class": "lab-cap" }, "New peak " + c.cap.toFixed(1) + " MW"));
     svg.setAttribute("aria-label", "Load curve of one working day. The peak falls from " + peakNow.toFixed(1) +
@@ -665,7 +686,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     function frame(ts) {
       if (t0 === null) t0 = ts;
       var p = Math.min((ts - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
-      current = { before: mix(from.before, target.before, e), after: mix(from.after, target.after, e), cap: from.cap + (target.cap - from.cap) * e };
+      current = { before: mix(from.before, target.before, e), after: mix(from.after, target.after, e), cap: from.cap + (target.cap - from.cap) * e, over: target.over, avg: target.avg };
       draw(current);
       anim = p < 1 ? requestAnimationFrame(frame) : null;
     }
@@ -776,6 +797,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("r-unit").textContent = "potential a year at this " + unit;
     el("k-mw-l").textContent = dc ? "grid capacity freed for new IT load" : "grid capacity freed for electrification";
     el("warn").hidden = !c.over;
+    el("lg-after").hidden = c.over; el("lg-cap").hidden = c.over; el("lg-avg").hidden = !c.over;
+    el("curve-src").textContent = "Illustrative: typical working day of a " + ARCH[arch].label + ", scaled to your inputs. The scan uses your own 15-minute data.";
     el("r-save").textContent = eurRange(r.save);
     el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, estimated from typical values";
     el("k-pay").textContent = years(r.pay);
