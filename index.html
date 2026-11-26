@@ -625,7 +625,20 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       var w = Math.abs(d) < 4 ? Math.pow(Math.cos(Math.PI * d / 8), 2) : 0;
       wts.push(w); wsum += w * 0.25;
     }
-    if (wsum > 0) for (q = 0; q < 96; q++) if (wts[q] > 0) x[q] = Math.min(x[q] + add * wts[q] / wsum, cap);
+    var placed = 0;
+    if (wsum > 0) for (q = 0; q < 96; q++) if (wts[q] > 0) {
+      var nv = Math.min(x[q] + add * wts[q] / wsum, cap); placed += (nv - x[q]) * 0.25; x[q] = nv;
+    }
+    /* Whatever does not fit under the new peak at night spreads over the remaining headroom, so no energy is lost */
+    for (it = 0; it < 6 && add - placed > 1e-6; it++) {
+      var left = add - placed, room = 0;
+      for (q = 0; q < 96; q++) room += Math.max(cap - x[q], 0) * 0.25;
+      if (room <= 1e-9) break;
+      for (q = 0; q < 96; q++) {
+        var h = Math.max(cap - x[q], 0) * 0.25, put = Math.min(h, left * h / room);
+        x[q] += put / 0.25; placed += put;
+      }
+    }
     return { before: before, after: x, cap: cap, over: over, avg: avg };
   }
 
