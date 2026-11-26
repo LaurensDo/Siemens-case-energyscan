@@ -304,8 +304,8 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
 
   <main class="grid">
     <section class="headline" aria-live="polite">
-      <p class="big num"><span id="r-save">€0.7–1.2m</span> <span class="unit" id="r-unit">potential a year at this plant</span></p>
-      <p class="sub num" id="r-sub">5.0–8.4% of a €15m energy bill, estimated from typical values</p>
+      <p class="big num"><span id="r-save">€0.7–1.2m</span> <span class="unit" id="r-unit">savings a year from flexibility</span></p>
+      <p class="sub num" id="r-sub">5.0–8.4% of a €15m energy bill, from load shifting, peak capping and a battery. Efficiency comes on top.</p>
     </section>
 
     <section class="inputs" aria-labelledby="in-h">
@@ -836,7 +836,6 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("grp-hint").textContent = "How many similar " + unit + "s could follow the same plan? This sets the group potential further down.";
     el("g-change").textContent = "Change number of " + unit + "s";
     el("flex-hint").textContent = dc ? "cooling, flexible AI workloads" : "cooling, compressed air, cleaning";
-    el("r-unit").textContent = "potential a year at this " + unit;
     el("k-mw-l").textContent = dc ? "grid capacity freed for new IT load" : "grid capacity freed for electrification";
     var raised = i.peak <= need + 0.05;
     el("warn").hidden = !raised;
@@ -845,7 +844,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("lg-after").hidden = c.over; el("lg-cap").hidden = c.over; el("lg-avg").hidden = !c.over;
     el("curve-src").textContent = "Illustrative: typical working day of a " + ARCH[arch].label + ", scaled to your inputs. The scan uses your own 15-minute data.";
     el("r-save").textContent = eurRange(r.save);
-    el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, from load shifting, peak capping and a battery";
+    el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, from load shifting, peak capping and a battery. Efficiency comes on top.";
     el("k-pay").textContent = years(r.pay);
     el("k-mw").textContent = r.freedMW.toFixed(1) + " MW";
     var ex = el("e-ex");
