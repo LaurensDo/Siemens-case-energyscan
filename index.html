@@ -356,7 +356,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     </section>
 
     <figure class="curve">
-      <figcaption><span class="ttl">One working day, before and after</span><span class="src" id="curve-src">Illustrative: typical working day of a dairy, scaled to your inputs. The scan uses your own 15-minute data.</span></figcaption>
+      <figcaption><span class="ttl">One working day, before and after</span><span class="src" id="curve-src">Illustrative: typical working day of a dairy, scaled to your inputs. A full Opportunity Scan by Siemens uses your own 15-minute data.</span></figcaption>
       <svg id="chart" viewBox="0 0 640 270" role="img" aria-label="Load curve of one working day before and after the measures"></svg>
       <div class="legend">
         <span><i class="sw" aria-hidden="true"></i>Today</span>
@@ -842,7 +842,7 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     if (raised) el("warn").textContent = "Raised to " + i.peak.toFixed(1) + " MW: " + i.gwh + plus("gwh") +
       " GWh a year means an average load of " + (i.gwh * 1000 / 8760).toFixed(1) + " MW, and a " + ARCH[arch].label + " needs at least this peak.";
     el("lg-after").hidden = c.over; el("lg-cap").hidden = c.over; el("lg-avg").hidden = !c.over;
-    el("curve-src").textContent = "Illustrative: typical working day of a " + ARCH[arch].label + ", scaled to your inputs. The scan uses your own 15-minute data.";
+    el("curve-src").textContent = "Illustrative: typical working day of a " + ARCH[arch].label + ", scaled to your inputs. A full Opportunity Scan by Siemens uses your own 15-minute data.";
     el("r-save").textContent = eurRange(r.save);
     el("r-unit").textContent = "savings a year at this " + unit + " from flexibility";
     el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, from load shifting, peak capping and a battery. Efficiency comes on top.";
