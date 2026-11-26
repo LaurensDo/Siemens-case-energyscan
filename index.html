@@ -350,9 +350,9 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     </section>
 
     <section class="eff" aria-labelledby="eff-h">
-      <div class="eff-top"><span class="eff-v num" id="e-save">+ €330–540k</span><span class="eff-l" id="eff-h">a year on top from efficiency, estimated from benchmarks</span></div>
+      <div class="eff-top"><span class="eff-v num">+ about 4–11%</span><span class="eff-l" id="eff-h">of energy use on top from efficiency</span></div>
       <ul class="eff-ex" id="e-ex"></ul>
-      <p class="eff-foot" id="e-foot">Uses less energy and cuts about 1,020 t of CO₂ a year. Not in the curve, because it lowers the use rather than moving it.</p>
+      <p class="eff-foot">Siemens reference: Diehl Aviation cut production electricity by about 6% with SIMATIC Energy Manager. Studies: 4% in the first year (LBNL), 11% on average across 300+ cases (IEA). Not in the curve, because it lowers the use rather than moving it.</p>
     </section>
 
     <figure class="curve">
@@ -448,12 +448,12 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
       <ul>
         <li>Demand charge €130 per kW and year (2026 medium-voltage grid fees in Germany, mostly €100–200). Load management cuts the peak by 40% of the flexible share, at most 15%.</li>
         <li>Load shifting moves 25% of the flexible energy to cheaper quarter hours at a €45 per MWh spread. It needs a dynamic power contract.</li>
-        <li>Efficiency is shown on top, as a benchmark estimate: it saves 10% of the flexible load plus 2% of the rest. It lowers energy use and CO₂, not the shape of the curve, so it is not in the curve or in the ranked measures.</li>
+        <li>Efficiency is shown on top as a range, not in euros: about 4–11% of energy use. Sources: Siemens reference Diehl Aviation (production electricity from 11.5 to 10.8 GWh with SIMATIC Energy Manager, about 6%); Lawrence Berkeley National Laboratory (about 4.1% improvement in the first year with an ISO 50001 energy management system); IEA 2025 (11% average savings across more than 300 energy management cases). Efficiency lowers the use, not the shape of the curve, so it is not in the curve, the potential or the ranked measures.</li>
         <li>The battery covers 15% of the peak for two hours at €400 per kWh installed, with 300 cycles a year at a €60 per MWh spread.</li>
         <li>Load management costs €40k per plant plus €10k per MW of peak; the shifting software €60k.</li>
         <li>Each plant type starts at the middle of its typical range. The ranges describe mid-size sites in Germany, Austria and Switzerland and leave out the smallest and the largest, roughly the middle two thirds. Electricity price comes from BDEW 2026 averages by consumption size; peak load from typical operating hours of the type; electricity use and flexible share are modelling assumptions built on public data (Germany has about 2,000 data centers above 100 kW and about 100 above 5 MW; a dairy processes about 250,000 tonnes of milk a year on average; cooling is about 40% of brewery electricity, about 25% in dairies and around 50% in meat processing; breweries use about 8–14 kWh per hectolitre). Peak load and price ranges move with your electricity use, because both depend on site size. The slider scales also follow the plant type and are set so that the typical peak load fits even at the top of the electricity scale; the top end of each scale stands for that value or more and is shown with a "+", and the demo calculates with the top value.</li>
-        <li>Data centers: cooling and flexible AI workloads form the flexible share; efficiency saves 8% of it plus 1% of the rest; 15% of it shifts; load management caps at most 4% of the peak; the battery covers 20% of the peak.</li>
-        <li>CO₂ at 0.34 t per MWh of electricity saved (German grid mix 2025, UBA). The curve is an illustrative working day of the chosen plant type, scaled to your values; it shows load shifting, peak capping and the battery.</li>
+        <li>Data centers: cooling and flexible AI workloads form the flexible share; 15% of it shifts; load management caps at most 4% of the peak; the battery covers 20% of the peak.</li>
+        <li>The curve is an illustrative working day of the chosen plant type, scaled to your values; it shows load shifting, peak capping and the battery.</li>
       </ul>
     </details>
   </main>
@@ -848,12 +848,9 @@ footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--lin
     el("r-sub").textContent = pctRange(r.share) + " of a " + eur(r.bill) + " energy bill, from load shifting, peak capping and a battery";
     el("k-pay").textContent = years(r.pay);
     el("k-mw").textContent = r.freedMW.toFixed(1) + " MW";
-    el("e-save").textContent = "+ " + eurRange(r.effSave);
     var ex = el("e-ex");
     while (ex.firstChild) ex.removeChild(ex.firstChild);
     EFF_EX[arch].forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ex.appendChild(li); });
-    el("e-foot").textContent = "Uses less energy and cuts about " + Math.round(r.co2).toLocaleString("en-US") +
-      " t of CO₂ a year. Not in the curve, because it lowers the use rather than moving it.";
     el("g-save").textContent = eurRange(r.group);
     el("g-text").textContent = i.plants > 1
       ? "a year if all " + i.plants + " " + unit + "s " + (dc ? "in the portfolio" : "in the group") + " follow the same plan. Same scan, same offer, every " + unit + "."
